@@ -227,11 +227,60 @@ export default function TodoMvcPage() {
         )}
       </Card>
 
-      <TipDrawer 
-        playwright={`page.locator('.todo-list li').filter({ hasText: 'Master Selenium' }).getByRole('checkbox').check()`}
-        java={`driver.findElement(By.cssSelector(".todo-list li")).filter({ hasText: 'Master Selenium' }).getByRole('checkbox').check();`}
-        python={`driver.find_element(By.CSS_SELECTOR, ".todo-list li").filter({ hasText: 'Master Selenium' }).getByRole('checkbox').check()`}
-        tip="TodoMVC is the standard benchmark for testing frameworks. Practice double-clicking to edit, checking boxes, clearing completed, and filtering lists. The DOM structure here mimics standard TodoMVC apps but uses custom React components."
+      <TipDrawer
+        selector={`.todo-list li`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('completes a specific todo', async ({ page }) => {
+  await page.goto('/elements/todo-mvc');
+  const item = page
+    .locator('.todo-list li')
+    .filter({ hasText: 'Master Selenium' });
+  await item.getByRole('checkbox').check();
+  await expect(item).toHaveClass(/line-through|completed/);
+});`}
+        pythonPlaywright={`import re
+from playwright.sync_api import expect
+
+def test_completes_todo(page):
+    page.goto("/elements/todo-mvc")
+    item = page.locator(".todo-list li").filter(has_text="Master Selenium")
+    item.get_by_role("checkbox").check()
+    expect(item).to_have_class(re.compile("line-through|completed"))`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class TodoMvcTest {
+    @Test
+    void completesTodo() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/todo-mvc");
+        WebElement item = driver.findElement(
+            By.xpath("//ul[contains(@class,'todo-list')]/li[.//*[contains(text(),'Master Selenium')]]"));
+        item.findElement(By.cssSelector("[role='checkbox']")).click();
+        assertTrue(item.getAttribute("class").contains("line-through")
+            || item.getAttribute("class").contains("completed"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_completes_todo():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/todo-mvc")
+    item = driver.find_element(
+        By.XPATH,
+        "//ul[contains(@class,'todo-list')]/li[.//*[contains(text(),'Master Selenium')]]")
+    item.find_element(By.CSS_SELECTOR, "[role='checkbox']").click()
+    cls = item.get_attribute("class")
+    assert "line-through" in cls or "completed" in cls
+    driver.quit()`}
+        tip="TodoMVC is the standard benchmark for UI tests. Filter the list by text first, then act inside that scope — index-based lookups break the moment the user adds, deletes, or filters. Assert on a visible style change, not just a state attribute the user can't see."
       />
     </div>
   );

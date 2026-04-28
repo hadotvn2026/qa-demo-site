@@ -61,11 +61,58 @@ export default function ContextClickPage() {
         </ContextMenu>
       </div>
 
-      <TipDrawer 
-        playwright={`await page.click('.trigger', { button: 'right' })`}
-        java={`driver.findElement(By.cssSelector("..."));`}
-        python={`driver.find_element(By.CSS_SELECTOR, "...")`}
-        tip="Context clicks are triggered by the secondary mouse button. In Playwright, use 'click({ button: 'right' })'. For Selenium, use the 'Actions' class to perform a 'contextClick'."
+      <TipDrawer
+        selector={`//*[contains(text(), 'Right click here')]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('opens context menu on right click', async ({ page }) => {
+  await page.goto('/elements/context-click');
+  await page.getByText('Right click here').click({ button: 'right' });
+  await expect(page.getByRole('menuitem', { name: 'Copy' })).toBeVisible();
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_opens_context_menu(page):
+    page.goto("/elements/context-click")
+    page.get_by_text("Right click here").click(button="right")
+    expect(page.get_by_role("menuitem", name="Copy")).to_be_visible()`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class ContextClickTest {
+    @Test
+    void opensContextMenu() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/context-click");
+        new Actions(driver)
+            .contextClick(driver.findElement(
+                By.xpath("//*[contains(text(), 'Right click here')]")))
+            .perform();
+        assertTrue(driver.findElement(
+            By.xpath("//*[@role='menuitem' and normalize-space()='Copy']")
+        ).isDisplayed());
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+
+def test_opens_context_menu():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/context-click")
+    target = driver.find_element(By.XPATH, "//*[contains(text(), 'Right click here')]")
+    ActionChains(driver).context_click(target).perform()
+    item = driver.find_element(
+        By.XPATH, "//*[@role='menuitem' and normalize-space()='Copy']"
+    )
+    assert item.is_displayed()
+    driver.quit()`}
+        tip="Selenium can't right-click via .click() — use the Actions API (Java) or ActionChains (Python). Playwright takes a button option directly. Custom context menus are positioned absolutely — assert role='menuitem', not the trigger's children."
       />
     </div>
   );

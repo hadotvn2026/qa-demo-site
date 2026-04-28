@@ -88,11 +88,66 @@ export default function DragDropPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`await page.locator('#item-1').dragTo(page.locator('#item-3'))`}
-        java={`await driver.findElement(By.cssSelector("#item-1")).dragTo(driver.findElement(By.cssSelector("#item-3")));`}
-        python={`await driver.find_element(By.CSS_SELECTOR, "#item-1").dragTo(driver.find_element(By.CSS_SELECTOR, "#item-3"))`}
-        tip="Drag and drop is notoriously difficult in Selenium/Playwright. Using 'dragTo' is the most stable approach, but for some libraries, you may need to perform a sequence: hover -> mouse.down -> mouse.move -> mouse.up."
+      <TipDrawer
+        selector={`#item-1`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('reorders items by drag and drop', async ({ page }) => {
+  await page.goto('/elements/drag-drop');
+  const list = page.locator('[id^="item-"]');
+  await expect(list.first()).toHaveText(/Fix flaky test/);
+  await list.first().dragTo(list.nth(2));
+  await expect(list.first()).not.toHaveText(/Fix flaky test/);
+});`}
+        pythonPlaywright={`import re
+from playwright.sync_api import expect
+
+def test_reorders_items(page):
+    page.goto("/elements/drag-drop")
+    list_ = page.locator('[id^="item-"]')
+    expect(list_.first).to_have_text(re.compile("Fix flaky test"))
+    list_.first.drag_to(list_.nth(2))
+    expect(list_.first).not_to_have_text(re.compile("Fix flaky test"))`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+class DragDropTest {
+    @Test
+    void reordersItems() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/drag-drop");
+        WebElement first = driver.findElement(By.id("item-1"));
+        WebElement third = driver.findElement(By.id("item-3"));
+        String before = driver.findElements(By.cssSelector("[id^='item-']"))
+            .get(0).getText();
+        new Actions(driver).clickAndHold(first).moveToElement(third)
+            .release().perform();
+        String after = driver.findElements(By.cssSelector("[id^='item-']"))
+            .get(0).getText();
+        assertNotEquals(before, after);
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+
+def test_reorders_items():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/drag-drop")
+    first = driver.find_element(By.ID, "item-1")
+    third = driver.find_element(By.ID, "item-3")
+    before = driver.find_elements(By.CSS_SELECTOR, "[id^='item-']")[0].text
+    ActionChains(driver).click_and_hold(first).move_to_element(third).release().perform()
+    after = driver.find_elements(By.CSS_SELECTOR, "[id^='item-']")[0].text
+    assert before != after
+    driver.quit()`}
+        tip="HTML5 drag events confuse most automation tools. Playwright's dragTo() works for native draggable=true; many React libs (dnd-kit, react-dnd) listen to pointer events instead — use mouse down → move → up. Always assert post-DOM ordering, not the drag fired."
       />
     </div>
   );

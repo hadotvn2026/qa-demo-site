@@ -50,11 +50,59 @@ export default function SliderPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`await page.locator('.slider-thumb').dragTo(target)`}
-        java={`await driver.findElement(By.cssSelector(".slider-thumb")).dragTo(target);`}
-        python={`await driver.find_element(By.CSS_SELECTOR, ".slider-thumb").dragTo(target)`}
-        tip="Sliders are best tested by keyboard interactions (ArrowRight/Left) or by dragging the thumb to a specific bounding box coordinate. verify the 'aria-valuenow' attribute for the most reliable state check."
+      <TipDrawer
+        selector={`[role="slider"]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('moves slider via keyboard', async ({ page }) => {
+  await page.goto('/elements/slider');
+  const thumb = page.getByRole('slider');
+  await thumb.focus();
+  // Each ArrowRight increments by 1 (step=1).
+  for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowRight');
+  await expect(thumb).toHaveAttribute('aria-valuenow', '60');
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_moves_slider(page):
+    page.goto("/elements/slider")
+    thumb = page.get_by_role("slider")
+    thumb.focus()
+    for _ in range(10):
+        page.keyboard.press("ArrowRight")
+    expect(thumb).to_have_attribute("aria-valuenow", "60")`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class SliderTest {
+    @Test
+    void movesSlider() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/slider");
+        WebElement thumb = driver.findElement(By.cssSelector("[role='slider']"));
+        for (int i = 0; i < 10; i++) thumb.sendKeys(Keys.ARROW_RIGHT);
+        assertEquals("60", thumb.getAttribute("aria-valuenow"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
+def test_moves_slider():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/slider")
+    thumb = driver.find_element(By.CSS_SELECTOR, "[role='slider']")
+    for _ in range(10):
+        thumb.send_keys(Keys.ARROW_RIGHT)
+    assert thumb.get_attribute("aria-valuenow") == "60"
+    driver.quit()`}
+        tip="Keyboard control is the most reliable way to drive a slider — drag math depends on bounding-box geometry that breaks on resize. Always assert aria-valuenow, not a sibling DOM label that's just rendering the same state."
       />
     </div>
   );

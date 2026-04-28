@@ -71,11 +71,63 @@ export default function JSAlertsPage() {
         </p>
       </div>
 
-      <TipDrawer 
-        playwright={`page.on('dialog', dialog => dialog.accept())`}
-        java={`driver.switchTo().alert().accept();;`}
-        python={`driver.switch_to.alert.accept()`}
-        tip={`Native JS alerts stop code execution until dismissed. Playwright auto-dismisses alerts by default unless you attach a 'dialog' event listener. Selenium requires driver.switchTo().alert().`}
+      <TipDrawer
+        selector={`//button[contains(., 'Click for JS Alert')]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('accepts JS alert', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await page.goto('/elements/alerts');
+  await page.getByRole('button', { name: 'Click for JS Alert' }).click();
+  await expect(page.locator('#result')).toHaveText(
+    'You successfully clicked an alert'
+  );
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_accepts_alert(page):
+    page.on("dialog", lambda d: d.accept())
+    page.goto("/elements/alerts")
+    page.get_by_role("button", name="Click for JS Alert").click()
+    expect(page.locator("#result")).to_have_text(
+        "You successfully clicked an alert"
+    )`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class AlertsTest {
+    @Test
+    void acceptsJsAlert() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/alerts");
+        driver.findElement(
+            By.xpath("//button[contains(., 'Click for JS Alert')]")
+        ).click();
+        driver.switchTo().alert().accept();
+        assertEquals(
+            "You successfully clicked an alert",
+            driver.findElement(By.id("result")).getText()
+        );
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_accepts_alert():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/alerts")
+    driver.find_element(
+        By.XPATH, "//button[contains(., 'Click for JS Alert')]"
+    ).click()
+    driver.switch_to.alert.accept()
+    assert driver.find_element(By.ID, "result").text == \\
+        "You successfully clicked an alert"
+    driver.quit()`}
+        tip={`Native JS alerts halt JS execution. Playwright auto-dismisses alerts unless you attach a 'dialog' handler BEFORE the click that triggers it. In Selenium, switch into the alert with driver.switchTo().alert() and call accept()/dismiss().`}
       />
     </div>
   );

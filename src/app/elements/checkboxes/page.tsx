@@ -85,11 +85,53 @@ export default function CheckboxesPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`page.locator('#custom-checkbox').click()`}
-        java={`driver.findElement(By.cssSelector("#custom-checkbox")).click();`}
-        python={`driver.find_element(By.CSS_SELECTOR, "#custom-checkbox").click()`}
-        tip="Custom checkboxes that don't use 'input' tags won't respond to 'check()' or 'uncheck()' commands in Playwright/Selenium. You must use 'click()' and verify the state via CSS classes or other visual indicators."
+      <TipDrawer
+        selector={`#custom-checkbox`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('toggles custom checkbox', async ({ page }) => {
+  await page.goto('/elements/checkboxes');
+  const box = page.locator('#custom-checkbox');
+  await box.click();
+  // Custom checkbox: state lives in a CSS class, not the DOM 'checked' prop.
+  await expect(box).toHaveAttribute('data-state', 'checked');
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_toggles_custom_checkbox(page):
+    page.goto("/elements/checkboxes")
+    box = page.locator("#custom-checkbox")
+    box.click()
+    expect(box).to_have_attribute("data-state", "checked")`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class CheckboxesTest {
+    @Test
+    void togglesCustomCheckbox() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/checkboxes");
+        WebElement box = driver.findElement(By.id("custom-checkbox"));
+        box.click();
+        assertEquals("checked", box.getAttribute("data-state"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_toggles_custom_checkbox():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/checkboxes")
+    box = driver.find_element(By.ID, "custom-checkbox")
+    box.click()
+    assert box.get_attribute("data-state") == "checked"
+    driver.quit()`}
+        tip="Div-based checkboxes won't respond to Playwright's check()/uncheck(). Use click() and assert on the data-state attribute (or a CSS class) — never trust the absence of an <input> to mean 'unchecked'."
       />
     </div>
   );

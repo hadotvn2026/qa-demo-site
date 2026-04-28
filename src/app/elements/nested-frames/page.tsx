@@ -28,11 +28,59 @@ export default function NestedFramesPage() {
       </Card>
 
       <div className="flex-shrink-0">
-        <TipDrawer 
-        playwright={`page.frameLocator('[name="frame-top"]').frameLocator('[name="frame-middle"]').locator('#content')`}
-        java={`driver.switchTo().frame(driver.findElement(By.cssSelector("[name="frame-top"]"))).frameLocator('[name="frame-middle"]').locator('#content');`}
-        python={`driver.switch_to.frame(driver.find_element(By.CSS_SELECTOR, "[name="frame-top"]")).frameLocator('[name="frame-middle"]').locator('#content')`}
-        tip="In Playwright, use frameLocator() to pierce through iframes. You can chain them for nested frames. In Selenium, you must use driver.switchTo().frame() sequentially."
+        <TipDrawer
+        selector={`iframe[title="nested frames"]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('reads text from nested iframe', async ({ page }) => {
+  await page.goto('/elements/nested-frames');
+  const middle = page
+    .frameLocator('iframe[title="nested frames"]')
+    .frameLocator('[name="frame-middle"]');
+  await expect(middle.locator('#content')).toBeVisible();
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_reads_nested_iframe(page):
+    page.goto("/elements/nested-frames")
+    middle = (page
+        .frame_locator('iframe[title="nested frames"]')
+        .frame_locator('[name="frame-middle"]'))
+    expect(middle.locator("#content")).to_be_visible()`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class NestedFramesTest {
+    @Test
+    void readsNestedIframe() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/nested-frames");
+        driver.switchTo().frame(driver.findElement(
+            By.cssSelector("iframe[title='nested frames']")));
+        driver.switchTo().frame(driver.findElement(
+            By.cssSelector("[name='frame-middle']")));
+        assertTrue(driver.findElement(By.id("content")).isDisplayed());
+        driver.switchTo().defaultContent();
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_reads_nested_iframe():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/nested-frames")
+    driver.switch_to.frame(
+        driver.find_element(By.CSS_SELECTOR, "iframe[title='nested frames']"))
+    driver.switch_to.frame(
+        driver.find_element(By.CSS_SELECTOR, "[name='frame-middle']"))
+    assert driver.find_element(By.ID, "content").is_displayed()
+    driver.switch_to.default_content()
+    driver.quit()`}
+        tip="Playwright's frameLocator() chains transparently and avoids context switches. Selenium needs an explicit switchTo().frame() per level — and switchTo().defaultContent() to escape. Forget the escape and your next selector mysteriously fails."
         />
       </div>
     </div>

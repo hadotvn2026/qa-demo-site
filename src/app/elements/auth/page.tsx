@@ -153,11 +153,60 @@ export default function AuthPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`page.getByLabel('Username').fill('tomsmith')`}
-        java={`page.getByLabel('Username').sendKeys("tomsmith");`}
-        python={`page.getByLabel('Username').send_keys("tomsmith")`}
-        tip="Prefer labeling elements with ARIA roles or labels over using CSS selectors. It makes tests more resilient to design changes."
+      <TipDrawer
+        selector={`input[name="username"]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('rejects invalid creds', async ({ page }) => {
+  await page.goto('/elements/auth');
+  await page.getByLabel('Username').fill('tomsmith');
+  await page.getByLabel('Password').fill('wrongpass');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await expect(page.getByText(/Invalid credentials/i)).toBeVisible();
+});`}
+        pythonPlaywright={`import re
+from playwright.sync_api import expect
+
+def test_rejects_invalid_creds(page):
+    page.goto("/elements/auth")
+    page.get_by_label("Username").fill("tomsmith")
+    page.get_by_label("Password").fill("wrongpass")
+    page.get_by_role("button", name="Sign In").click()
+    expect(page.get_by_text(re.compile("Invalid credentials", re.I))).to_be_visible()`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class AuthTest {
+    @Test
+    void rejectsInvalidCreds() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/auth");
+        driver.findElement(By.cssSelector("input[name='username']"))
+              .sendKeys("tomsmith");
+        driver.findElement(By.cssSelector("input[name='password']"))
+              .sendKeys("wrongpass");
+        driver.findElement(By.xpath("//button[normalize-space()='Sign In']"))
+              .click();
+        String body = driver.findElement(By.tagName("body")).getText();
+        assertTrue(body.contains("Invalid credentials"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_rejects_invalid_creds():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/auth")
+    driver.find_element(By.CSS_SELECTOR, "input[name='username']").send_keys("tomsmith")
+    driver.find_element(By.CSS_SELECTOR, "input[name='password']").send_keys("wrongpass")
+    driver.find_element(By.XPATH, "//button[normalize-space()='Sign In']").click()
+    assert "Invalid credentials" in driver.find_element(By.TAG_NAME, "body").text
+    driver.quit()`}
+        tip="Prefer ARIA roles and labels over CSS classes — they survive design refactors and read like the user's intent. The valid credentials on this page are tomsmith / SuperSecretPassword!"
       />
     </div>
   );

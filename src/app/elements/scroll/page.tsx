@@ -70,11 +70,58 @@ export default function ScrollPage() {
         </p>
       </div>
 
-      <TipDrawer 
-        playwright={`page.locator('#nested-button').scrollIntoViewIfNeeded()`}
-        java={`driver.findElement(By.cssSelector("#nested-button")).scrollIntoViewIfNeeded();`}
-        python={`driver.find_element(By.CSS_SELECTOR, "#nested-button").scrollIntoViewIfNeeded()`}
-        tip="Nested containers require scrolling the specific element, not the window. Playwright handles this automatically with most actions, but Selenium may require 'executeScript' or 'Actions.moveToElement'."
+      <TipDrawer
+        selector={`#nested-button`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('clicks button hidden inside scroll container', async ({ page }) => {
+  await page.goto('/elements/scroll');
+  const btn = page.locator('#nested-button');
+  await btn.scrollIntoViewIfNeeded();
+  await expect(btn).toBeVisible();
+  await btn.click();
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_clicks_nested_button(page):
+    page.goto("/elements/scroll")
+    btn = page.locator("#nested-button")
+    btn.scroll_into_view_if_needed()
+    expect(btn).to_be_visible()
+    btn.click()`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class ScrollTest {
+    @Test
+    void clicksNestedButton() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/scroll");
+        WebElement btn = driver.findElement(By.id("nested-button"));
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].scrollIntoView({block:'center'})", btn);
+        assertTrue(btn.isDisplayed());
+        btn.click();
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_clicks_nested_button():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/scroll")
+    btn = driver.find_element(By.ID, "nested-button")
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'})", btn)
+    assert btn.is_displayed()
+    btn.click()
+    driver.quit()`}
+        tip="Selenium's WebElement.click() will scroll the *window*, not nested overflow containers — so the button stays clipped. Use JS scrollIntoView on the element itself. Playwright's scrollIntoViewIfNeeded handles both cases automatically."
       />
     </div>
   );

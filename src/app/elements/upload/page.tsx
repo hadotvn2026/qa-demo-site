@@ -158,11 +158,62 @@ export default function UploadPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`page.setInputFiles('input[type=file]', 'path/to/file.png')`}
-        java={`driver.findElement(By.cssSelector("..."));`}
-        python={`driver.find_element(By.CSS_SELECTOR, "...")`}
-        tip="Playwright's setInputFiles works even on hidden inputs. For drag-and-drop zones, you may need to dispatch a manual 'drop' event if the input is not easily reachable."
+      <TipDrawer
+        selector={`input[type=file]`}
+        playwright={`import { test, expect } from '@playwright/test';
+import path from 'node:path';
+
+test('uploads a file', async ({ page }) => {
+  await page.goto('/elements/upload');
+  await page.locator('input[type=file]').setInputFiles(
+    path.resolve(__dirname, 'fixtures/sample.png')
+  );
+  await page.getByRole('button', { name: 'Upload File' }).click();
+  await expect(page.getByText(/"status": "success"/)).toBeVisible();
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_uploads_a_file(page, tmp_path):
+    f = tmp_path / "sample.png"
+    f.write_bytes(b"\\x89PNG\\r\\n\\x1a\\n")
+    page.goto("/elements/upload")
+    page.locator("input[type=file]").set_input_files(str(f))
+    page.get_by_role("button", name="Upload File").click()
+    expect(page.get_by_text('"status": "success"')).to_be_visible()`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class UploadTest {
+    @Test
+    void uploadsAFile() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/upload");
+        // sendKeys on the file input — works even when hidden by CSS.
+        driver.findElement(By.cssSelector("input[type=file]"))
+              .sendKeys("/tmp/sample.png");
+        driver.findElement(By.xpath("//button[normalize-space()='Upload File']"))
+              .click();
+        String body = driver.findElement(By.tagName("body")).getText();
+        assertTrue(body.contains("\\"status\\": \\"success\\""));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_uploads_a_file(tmp_path):
+    f = tmp_path / "sample.png"
+    f.write_bytes(b"\\x89PNG\\r\\n\\x1a\\n")
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/upload")
+    driver.find_element(By.CSS_SELECTOR, "input[type=file]").send_keys(str(f))
+    driver.find_element(By.XPATH, "//button[normalize-space()='Upload File']").click()
+    assert '"status": "success"' in driver.find_element(By.TAG_NAME, "body").text
+    driver.quit()`}
+        tip="Both Playwright (setInputFiles) and Selenium (sendKeys) drive uploads through the hidden <input type=file>, NOT the styled drop zone. The visible button is decorative — find the input and feed it an absolute path. For drag-drop-only zones, you'll need to dispatch a synthetic 'drop' DataTransfer event."
       />
     </div>
   );

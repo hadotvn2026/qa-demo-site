@@ -89,11 +89,73 @@ export default function DownloadPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`const download = await Promise.all([ page.waitForEvent('download'), page.click('text=Download CSV') ])`}
-        java={`driver.findElement(By.cssSelector("..."));`}
-        python={`driver.find_element(By.CSS_SELECTOR, "...")`}
-        tip="Verify downloads by capturing the 'download' event. You can then save the file to a temporary path or check its metadata using 'download.suggestedFilename()'."
+      <TipDrawer
+        selector={`//button[contains(., 'Download CSV')]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('downloads CSV', async ({ page }) => {
+  await page.goto('/elements/download');
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /Download CSV/i }).click(),
+  ]);
+  expect(download.suggestedFilename()).toBe('users.csv');
+  await download.saveAs('/tmp/' + download.suggestedFilename());
+});`}
+        pythonPlaywright={`def test_downloads_csv(page):
+    page.goto("/elements/download")
+    with page.expect_download() as info:
+        page.get_by_role("button", name="Download CSV").click()
+    download = info.value
+    assert download.suggested_filename == "users.csv"
+    download.save_as("/tmp/" + download.suggested_filename)`}
+        java={`import java.io.File;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class DownloadTest {
+    @Test
+    void downloadsCsv() throws Exception {
+        ChromeOptions opts = new ChromeOptions();
+        opts.addArguments("--headless=new");
+        opts.setExperimentalOption("prefs", java.util.Map.of(
+            "download.default_directory", "/tmp/dl",
+            "download.prompt_for_download", false
+        ));
+        WebDriver driver = new ChromeDriver(opts);
+        driver.get("http://localhost:3000/elements/download");
+        driver.findElement(By.xpath("//button[contains(., 'Download CSV')]")).click();
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+            .until(d -> new File("/tmp/dl/users.csv").exists());
+        assertTrue(new File("/tmp/dl/users.csv").exists());
+        driver.quit();
+    }
+}`}
+        python={`import os, time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_downloads_csv():
+    opts = webdriver.ChromeOptions()
+    opts.add_experimental_option("prefs", {
+        "download.default_directory": "/tmp/dl",
+        "download.prompt_for_download": False,
+    })
+    driver = webdriver.Chrome(options=opts)
+    driver.get("http://localhost:3000/elements/download")
+    driver.find_element(By.XPATH, "//button[contains(., 'Download CSV')]").click()
+    deadline = time.time() + 5
+    while not os.path.exists("/tmp/dl/users.csv") and time.time() < deadline:
+        time.sleep(0.1)
+    assert os.path.exists("/tmp/dl/users.csv")
+    driver.quit()`}
+        tip="Selenium has no built-in download API — configure the browser's download dir, then poll the filesystem. Playwright captures download events directly so you can inspect filename, MIME, and bytes without touching disk."
       />
     </div>
   );
