@@ -33,7 +33,7 @@ export default function LandingPage() {
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg" className="rounded-full px-8 h-12 text-base border-border hover:bg-secondary">
-          <Link href="https://github.com" target="_blank">
+          <Link href="https://github.com/hadotvn2026/qa-demo-site" target="_blank">
             <Github className="mr-2 h-4 w-4" />
             View on GitHub
           </Link>
