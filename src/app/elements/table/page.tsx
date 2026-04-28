@@ -38,26 +38,53 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TipDrawer } from "@/components/layout/tip-drawer";
 
-const data: User[] = [
-  { id: "1", name: "Ha Do", email: "hado@flakelab.dev", role: "Senior QE", status: "active" },
-  { id: "2", name: "Alice Smith", email: "alice@example.com", role: "Developer", status: "active" },
-  { id: "3", name: "Bob Johnson", email: "bob@test.com", role: "QA Engineer", status: "inactive" },
-  { id: "4", name: "Charlie Brown", email: "charlie@hq.com", role: "Manager", status: "active" },
-  { id: "5", name: "Diana Prince", email: "diana@wonder.com", role: "Lead Tester", status: "active" },
-  { id: "6", name: "Edward Norton", email: "edward@fight.com", role: "QA Automation", status: "pending" },
-  { id: "7", name: "Fiona Apple", email: "fiona@music.com", role: "Junior QE", status: "active" },
-  { id: "8", name: "George Lucas", email: "george@stars.com", role: "Director", status: "active" },
-];
-
-export type User = {
+export type City = {
   id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: "active" | "inactive" | "pending";
+  city: string;
+  country: string;
+  population: number;
+  gdpUsdBillions: number;
+  continent: "Asia" | "Europe" | "Americas" | "Oceania" | "Africa";
 };
 
-const columns: ColumnDef<User>[] = [
+const data: City[] = [
+  { id: "1", city: "Tokyo", country: "Japan", population: 37_400_000, gdpUsdBillions: 1800, continent: "Asia" },
+  { id: "2", city: "New York", country: "United States", population: 19_300_000, gdpUsdBillions: 2050, continent: "Americas" },
+  { id: "3", city: "Los Angeles", country: "United States", population: 13_200_000, gdpUsdBillions: 1300, continent: "Americas" },
+  { id: "4", city: "London", country: "United Kingdom", population: 9_500_000, gdpUsdBillions: 870, continent: "Europe" },
+  { id: "5", city: "Paris", country: "France", population: 11_000_000, gdpUsdBillions: 870, continent: "Europe" },
+  { id: "6", city: "Shanghai", country: "China", population: 28_500_000, gdpUsdBillions: 680, continent: "Asia" },
+  { id: "7", city: "Seoul", country: "South Korea", population: 25_500_000, gdpUsdBillions: 780, continent: "Asia" },
+  { id: "8", city: "Osaka", country: "Japan", population: 19_000_000, gdpUsdBillions: 700, continent: "Asia" },
+  { id: "9", city: "Singapore", country: "Singapore", population: 5_900_000, gdpUsdBillions: 470, continent: "Asia" },
+  { id: "10", city: "Sydney", country: "Australia", population: 5_300_000, gdpUsdBillions: 420, continent: "Oceania" },
+  { id: "11", city: "São Paulo", country: "Brazil", population: 22_000_000, gdpUsdBillions: 430, continent: "Americas" },
+  { id: "12", city: "Dubai", country: "United Arab Emirates", population: 3_500_000, gdpUsdBillions: 115, continent: "Asia" },
+];
+
+const usdFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 1,
+});
+const numberFormatter = new Intl.NumberFormat("en-US");
+
+function formatGdp(billions: number): string {
+  if (billions >= 1000) {
+    return `${usdFormatter.format(billions / 1000)}T`;
+  }
+  return `${usdFormatter.format(billions)}B`;
+}
+
+const continentBadgeVariant: Record<City["continent"], "default" | "secondary" | "outline" | "destructive"> = {
+  Asia: "default",
+  Europe: "secondary",
+  Americas: "outline",
+  Oceania: "outline",
+  Africa: "destructive",
+};
+
+const columns: ColumnDef<City>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -78,39 +105,68 @@ const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    accessorKey: "city",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="-ml-4 h-8 data-[state=open]:bg-accent"
+      >
+        City
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="font-medium">{row.getValue("city")}</div>,
   },
   {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    accessorKey: "country",
+    header: "Country",
+    cell: ({ row }) => <div>{row.getValue("country")}</div>,
   },
   {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("role")}</div>,
+    accessorKey: "population",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="-ml-4 h-8 data-[state=open]:bg-accent"
+      >
+        Population
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <div className="tabular-nums">
+        {numberFormatter.format(row.getValue("population"))}
+      </div>
+    ),
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "gdpUsdBillions",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="-ml-4 h-8 data-[state=open]:bg-accent"
+      >
+        GDP (USD)
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <div className="tabular-nums font-medium">
+        {formatGdp(row.getValue("gdpUsdBillions"))}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "continent",
+    header: "Continent",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const continent = row.getValue("continent") as City["continent"];
       return (
-        <Badge variant={status === "active" ? "default" : status === "pending" ? "secondary" : "destructive"} className="capitalize">
-          {status}
+        <Badge variant={continentBadgeVariant[continent]} className="capitalize">
+          {continent}
         </Badge>
       );
     },
@@ -119,7 +175,7 @@ const columns: ColumnDef<User>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const user = row.original;
+      const city = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -130,12 +186,12 @@ const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
-              Copy user ID
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(city.city)}>
+              Copy city name
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Delete user</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">Remove from list</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -173,7 +229,7 @@ export default function TablePage() {
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Data Table</h1>
         <p className="text-muted-foreground">
-          Complex interactive table with sorting, filtering, pagination, and row selection.
+          Cities of the world with population and GDP in USD — sortable, filterable, paginated.
         </p>
       </div>
 
@@ -182,10 +238,10 @@ export default function TablePage() {
           <div className="relative w-full sm:max-w-sm">
             <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Filter names..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+              placeholder="Filter cities..."
+              value={(table.getColumn("city")?.getFilterValue() as string) ?? ""}
               onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
+                table.getColumn("city")?.setFilterValue(event.target.value)
               }
               className="pl-9"
             />
@@ -295,12 +351,12 @@ export default function TablePage() {
       </div>
 
       <TipDrawer
-        selector={`//tr[.//*[normalize-space()='Ha Do']]`}
+        selector={`//tr[.//*[normalize-space()='Tokyo']]`}
         playwright={`import { test, expect } from '@playwright/test';
 
-test('selects a row by name', async ({ page }) => {
+test('selects a row by city', async ({ page }) => {
   await page.goto('/elements/table');
-  const row = page.getByRole('row', { name: /Ha Do/ });
+  const row = page.getByRole('row', { name: /Tokyo/ });
   await row.getByRole('checkbox').check();
   await expect(row).toHaveAttribute('data-state', 'selected');
 });`}
@@ -309,7 +365,7 @@ from playwright.sync_api import expect
 
 def test_selects_row(page):
     page.goto("/elements/table")
-    row = page.get_by_role("row", name=re.compile("Ha Do"))
+    row = page.get_by_role("row", name=re.compile("Tokyo"))
     row.get_by_role("checkbox").check()
     expect(row).to_have_attribute("data-state", "selected")`}
         java={`import org.testng.annotations.Test;
@@ -321,11 +377,11 @@ import static org.testng.Assert.assertEquals;
 
 class TableTest {
     @Test
-    void selectsRowByName() {
+    void selectsRowByCity() {
         WebDriver driver = new ChromeDriver();
         driver.get("http://localhost:3000/elements/table");
         WebElement row = driver.findElement(
-            By.xpath("//tr[.//*[normalize-space()='Ha Do']]"));
+            By.xpath("//tr[.//*[normalize-space()='Tokyo']]"));
         row.findElement(By.cssSelector("[role='checkbox']")).click();
         assertEquals("selected", row.getAttribute("data-state"));
         driver.quit();
@@ -338,11 +394,11 @@ def test_selects_row():
     driver = webdriver.Chrome()
     driver.get("http://localhost:3000/elements/table")
     row = driver.find_element(
-        By.XPATH, "//tr[.//*[normalize-space()='Ha Do']]")
+        By.XPATH, "//tr[.//*[normalize-space()='Tokyo']]")
     row.find_element(By.CSS_SELECTOR, "[role='checkbox']").click()
     assert row.get_attribute("data-state") == "selected"
     driver.quit()`}
-        tip="Always scope row interactions inside the row that contains the unique cell — never index by row number, since sort/filter shuffles them. role='row' + a name regex is the most stable handle in shadcn/Tanstack tables."
+        tip="Scope row interactions inside the row that contains the unique cell — never index by row number, since sort/filter shuffles them. role='row' + a name regex is the most stable handle in shadcn/Tanstack tables. The GDP column sorts numerically even though it renders formatted text."
       />
     </div>
   );

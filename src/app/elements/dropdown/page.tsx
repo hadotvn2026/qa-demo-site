@@ -16,6 +16,8 @@ export default function DropdownPage() {
   const [standardValue, setStandardValue] = useState("");
   const [customValue, setCustomValue] = useState("");
   const [isCustomOpen, setIsCustomOpen] = useState(false);
+  const [nativeValue, setNativeValue] = useState("");
+  const [multipleValues, setMultipleValues] = useState<string[]>([]);
 
   const customOptions = ["Option 1", "Option 2", "Option 3", "Option 4"];
 
@@ -89,6 +91,75 @@ export default function DropdownPage() {
             </div>
             {customValue && (
               <p className="text-sm text-primary font-medium">Selected: {customValue}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Native Select (single) */}
+        <Card className="border-border bg-card/50">
+          <CardHeader>
+            <CardTitle>Native Select</CardTitle>
+            <CardDescription>
+              Real <code className="text-primary">&lt;select&gt;</code> with{" "}
+              <code className="text-primary">&lt;option&gt;</code> children — works with Selenium&apos;s{" "}
+              <code className="text-primary">Select</code> helper.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <select
+              id="native-framework"
+              name="framework"
+              value={nativeValue}
+              onChange={(e) => setNativeValue(e.target.value)}
+              className="h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Select a framework</option>
+              <option value="next">Next.js</option>
+              <option value="svelte">SvelteKit</option>
+              <option value="astro">Astro</option>
+              <option value="nuxt">Nuxt.js</option>
+              <option value="remix" disabled>
+                Remix (disabled)
+              </option>
+            </select>
+            {nativeValue && (
+              <p className="text-sm font-medium text-primary">Selected: {nativeValue}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Native Multi-Select */}
+        <Card className="border-border bg-card/50">
+          <CardHeader>
+            <CardTitle>Multiple Select</CardTitle>
+            <CardDescription>
+              <code className="text-primary">&lt;select multiple&gt;</code> — hold ⌘/Ctrl to select more than one.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <select
+              id="native-languages"
+              name="languages"
+              multiple
+              value={multipleValues}
+              onChange={(e) =>
+                setMultipleValues(
+                  Array.from(e.target.selectedOptions, (o) => o.value),
+                )
+              }
+              className="h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="ts">TypeScript</option>
+              <option value="py">Python</option>
+              <option value="java">Java</option>
+              <option value="go">Go</option>
+              <option value="rust">Rust</option>
+              <option value="kotlin">Kotlin</option>
+            </select>
+            {multipleValues.length > 0 && (
+              <p className="text-sm font-medium text-primary">
+                Selected: {multipleValues.join(", ")}
+              </p>
             )}
           </CardContent>
         </Card>

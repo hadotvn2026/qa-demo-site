@@ -23,7 +23,8 @@ import {
   CalendarDays,
   MessageSquareWarning,
   LayoutTemplate,
-  ListTodo
+  ListTodo,
+  Calculator
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -49,6 +50,7 @@ const navItems = [
   { name: "Nested Frames", href: "/elements/nested-frames", icon: LayoutTemplate },
   { name: "Todo MVC", href: "/elements/todo-mvc", icon: ListTodo },
   { name: "Random Popup", href: "/elements/popup", icon: Zap },
+  { name: "BMI Calculator", href: "/elements/bmi", icon: Calculator },
 ];
 
 export function Sidebar() {

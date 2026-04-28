@@ -18,6 +18,7 @@ import {
   MousePointerClick,
   Zap,
   Home,
+  Calculator,
 } from "lucide-react";
 
 import {
@@ -45,6 +46,7 @@ const menuItems = [
   { name: "Hover", href: "/elements/hover", icon: UserCircle },
   { name: "Context Click", href: "/elements/context-click", icon: MousePointerClick },
   { name: "Random Popup", href: "/elements/popup", icon: Zap },
+  { name: "BMI Calculator", href: "/elements/bmi", icon: Calculator },
 ];
 
 export function CommandMenu() {
