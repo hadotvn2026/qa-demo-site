@@ -180,11 +180,11 @@ def test_uploads_a_file(page, tmp_path):
     page.locator("input[type=file]").set_input_files(str(f))
     page.get_by_role("button", name="Upload File").click()
     expect(page.get_by_text('"status": "success"')).to_be_visible()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class UploadTest {
     @Test

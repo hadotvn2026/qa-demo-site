@@ -76,12 +76,12 @@ def test_opens_context_menu(page):
     page.goto("/elements/context-click")
     page.get_by_text("Right click here").click(button="right")
     expect(page.get_by_role("menuitem", name="Copy")).to_be_visible()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class ContextClickTest {
     @Test

@@ -81,7 +81,7 @@ def test_reveals_hover_card(page):
     page.goto("/elements/hover")
     page.get_by_text("Ha Do").hover()
     expect(page.get_by_text("@hadotvn")).to_be_visible()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -89,7 +89,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class HoverTest {
     @Test

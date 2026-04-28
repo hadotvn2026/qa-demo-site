@@ -108,13 +108,13 @@ def test_reorders_items(page):
     expect(list_.first).to_have_text(re.compile("Fix flaky test"))
     list_.first.drag_to(list_.nth(2))
     expect(list_.first).not_to_have_text(re.compile("Fix flaky test"))`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.testng.Assert.assertNotEquals;
 
 class DragDropTest {
     @Test

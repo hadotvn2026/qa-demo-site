@@ -116,11 +116,11 @@ def test_picks_a_date(page):
     page.get_by_role("button", name="Pick a date").click()
     page.get_by_role("gridcell", name="15").first.click()
     expect(page.get_by_role("button").filter(has_text=re.compile(r"\\b15\\b"))).to_be_visible()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class DatePickerTest {
     @Test

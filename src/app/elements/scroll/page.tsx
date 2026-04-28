@@ -89,13 +89,13 @@ def test_clicks_nested_button(page):
     btn.scroll_into_view_if_needed()
     expect(btn).to_be_visible()
     btn.click()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class ScrollTest {
     @Test

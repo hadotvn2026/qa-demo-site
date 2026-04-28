@@ -173,11 +173,11 @@ def test_rejects_invalid_creds(page):
     page.get_by_label("Password").fill("wrongpass")
     page.get_by_role("button", name="Sign In").click()
     expect(page.get_by_text(re.compile("Invalid credentials", re.I))).to_be_visible()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class AuthTest {
     @Test

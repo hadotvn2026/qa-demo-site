@@ -71,13 +71,13 @@ def test_moves_slider(page):
     for _ in range(10):
         page.keyboard.press("ArrowRight")
     expect(thumb).to_have_attribute("aria-valuenow", "60")`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 class SliderTest {
     @Test

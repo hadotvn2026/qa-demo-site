@@ -116,7 +116,7 @@ def test_handles_delayed_popup(page):
     expect(page.get_by_role("heading", name="Surprise Modal")).to_be_visible(timeout=10000)
     page.get_by_role("button", name="Dismiss Popup").click()`}
         java={`import java.time.Duration;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;

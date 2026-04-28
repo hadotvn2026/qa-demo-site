@@ -46,7 +46,7 @@ const TABS: {
   },
   {
     id: "java",
-    label: "Selenium (Java)",
+    label: "Selenium (Java/TestNG)",
     filename: "ExampleTest.java",
     language: "java",
     activeClass: "border-orange-500 bg-orange-500/10 text-orange-400",
@@ -54,7 +54,7 @@ const TABS: {
   },
   {
     id: "python",
-    label: "Selenium (Py)",
+    label: "Selenium (Py/pytest)",
     filename: "test_example.py",
     language: "python",
     activeClass: "border-amber-400 bg-amber-400/10 text-amber-300",

@@ -312,12 +312,12 @@ def test_selects_row(page):
     row = page.get_by_role("row", name=re.compile("Ha Do"))
     row.get_by_role("checkbox").check()
     expect(row).to_have_attribute("data-state", "selected")`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 class TableTest {
     @Test

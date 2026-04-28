@@ -47,11 +47,11 @@ def test_reads_nested_iframe(page):
         .frame_locator('iframe[title="nested frames"]')
         .frame_locator('[name="frame-middle"]'))
     expect(middle.locator("#content")).to_be_visible()`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class NestedFramesTest {
     @Test

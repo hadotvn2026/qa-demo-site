@@ -94,7 +94,7 @@ def test_lazy_loads_more(page):
     page.get_by_text("Scroll down to load more").scroll_into_view_if_needed()
     expect(page.get_by_text("Item #6")).to_be_visible(timeout=5000)`}
         java={`import java.time.Duration;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;

@@ -111,12 +111,12 @@ def test_selects_option(page):
     page.locator("#custom-select-trigger").click()
     page.get_by_text("Option 2").click()
     expect(page.locator("#custom-select-trigger")).to_contain_text("Option 2")`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class DropdownTest {
     @Test

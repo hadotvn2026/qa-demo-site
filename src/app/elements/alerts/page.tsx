@@ -92,11 +92,11 @@ def test_accepts_alert(page):
     expect(page.locator("#result")).to_have_text(
         "You successfully clicked an alert"
     )`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 class AlertsTest {
     @Test

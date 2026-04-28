@@ -127,11 +127,11 @@ def test_captures_new_tab(page, context):
     new_page.wait_for_load_state()
     expect(new_page).to_have_url(re.compile(r"playwright\\.dev"))`}
         java={`import java.util.ArrayList;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class HyperlinksTest {
     @Test

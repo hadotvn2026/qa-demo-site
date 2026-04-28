@@ -111,13 +111,13 @@ test('downloads CSV', async ({ page }) => {
     download.save_as("/tmp/" + download.suggested_filename)`}
         java={`import java.io.File;
 import java.time.Duration;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class DownloadTest {
     @Test

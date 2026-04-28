@@ -247,12 +247,12 @@ def test_completes_todo(page):
     item = page.locator(".todo-list li").filter(has_text="Master Selenium")
     item.get_by_role("checkbox").check()
     expect(item).to_have_class(re.compile("line-through|completed"))`}
-        java={`import org.junit.jupiter.api.Test;
+        java={`import org.testng.annotations.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 class TodoMvcTest {
     @Test
