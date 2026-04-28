@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { TipDrawer } from "@/components/layout/tip-drawer";
+import { LocatorBot } from "@/components/layout/locator-bot";
 import { ErrorState } from "@/components/state/ErrorState";
 
 const formSchema = z.object({
@@ -152,6 +153,13 @@ export default function AuthPage() {
           </CardFooter>
         </Card>
       </div>
+
+      <LocatorBot
+        selector={`input[name="username"]`}
+        targetName="Username field"
+        description="Live locator guidance and a screenshot preview for the username input."
+        tip="Prefer locating the username field by its name or label so automation stays stable as the UI evolves."
+      />
 
       <TipDrawer
         selector={`input[name="username"]`}
