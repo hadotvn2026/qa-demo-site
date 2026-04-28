@@ -33,7 +33,7 @@ export default function DatePickerPage() {
         <Card className="border-border bg-card/50">
           <CardHeader>
             <CardTitle>Native Date Input</CardTitle>
-            <CardDescription>A standard HTML5 input type="date".</CardDescription>
+            <CardDescription>A standard HTML5 input type=&quot;date&quot;.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="flex flex-col space-y-2">
@@ -95,11 +95,67 @@ export default function DatePickerPage() {
         </Card>
       </div>
 
-      <TipDrawer 
-        playwright={`page.getByRole('button', { name: 'Pick a date' }).click()`}
-        java={`driver.findElement(By.xpath("//button[text()='Pick a date']")).click();`}
-        python={`driver.find_element(By.XPATH, "//button[text()='Pick a date']").click()`}
-        tip={`Native date inputs can often be manipulated by directly filling their text value (e.g., page.fill('input[type="date"]', '2026-10-31')). Custom widgets often require you to click to open the popover, then interact with the calendar grid dynamically.`}
+      <TipDrawer
+        selector={`//button[contains(., 'Pick a date')]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('picks a date from the calendar', async ({ page }) => {
+  await page.goto('/elements/date-picker');
+  await page.getByRole('button', { name: 'Pick a date' }).click();
+  // Calendar grid uses role=gridcell with the day name as accessible text.
+  await page.getByRole('gridcell', { name: '15' }).first().click();
+  await expect(
+    page.getByRole('button').filter({ hasText: /\\b15\\b/ })
+  ).toBeVisible();
+});`}
+        pythonPlaywright={`import re
+from playwright.sync_api import expect
+
+def test_picks_a_date(page):
+    page.goto("/elements/date-picker")
+    page.get_by_role("button", name="Pick a date").click()
+    page.get_by_role("gridcell", name="15").first.click()
+    expect(page.get_by_role("button").filter(has_text=re.compile(r"\\b15\\b"))).to_be_visible()`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class DatePickerTest {
+    @Test
+    void picksDateFromCalendar() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/date-picker");
+        driver.findElement(
+            By.xpath("//button[contains(., 'Pick a date')]")
+        ).click();
+        driver.findElement(
+            By.xpath("(//*[@role='gridcell' and normalize-space()='15'])[1]")
+        ).click();
+        String label = driver.findElement(
+            By.xpath("//button[contains(., 'Pick a date') or contains(., '15')]")
+        ).getText();
+        assertTrue(label.contains("15"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_picks_a_date():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/date-picker")
+    driver.find_element(By.XPATH, "//button[contains(., 'Pick a date')]").click()
+    driver.find_element(
+        By.XPATH, "(//*[@role='gridcell' and normalize-space()='15'])[1]"
+    ).click()
+    button = driver.find_element(
+        By.XPATH, "//button[contains(., 'Pick a date') or contains(., '15')]"
+    )
+    assert "15" in button.text
+    driver.quit()`}
+        tip={`Native <input type="date"> can usually be set with .fill('2026-10-31'). Custom calendars need a click-to-open then a click on a gridcell — assert against role='gridcell' to stay resilient to layout changes.`}
       />
     </div>
   );

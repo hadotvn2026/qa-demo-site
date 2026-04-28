@@ -20,7 +20,7 @@ export default function LandingPage() {
 
       {/* Subhead */}
       <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl animate-in fade-in slide-in-from-bottom-5 duration-1000">
-        The 18 you can't fake. With reference tests that don't.
+        The 18 you can&apos;t fake. With reference tests that don&apos;t.
         A modern playground for QA engineers who value taste and stability.
       </p>
 

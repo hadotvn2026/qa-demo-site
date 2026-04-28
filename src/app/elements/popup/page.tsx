@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -16,31 +15,36 @@ import { EmptyState } from "@/components/state/EmptyState";
 import { Zap, Timer } from "lucide-react";
 
 export default function PopupPage() {
-  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
     const delayParam = searchParams.get("popupDelay");
-    const delay = delayParam !== null ? parseInt(delayParam) : Math.floor(Math.random() * 10) + 5;
-    
+    const delay = delayParam !== null ? parseInt(delayParam) : 5;
+
     if (delay === 0) {
-      setIsOpen(true);
-    } else {
-      setCountdown(delay);
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev === 1) {
-            clearInterval(timer);
-            setIsOpen(true);
-            return null;
-          }
-          return prev ? prev - 1 : null;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
+      setTimeout(() => setIsOpen(true), 0);
+      return;
     }
-  }, [searchParams]);
+
+    const initTimer = setTimeout(() => setCountdown(delay), 0);
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          clearInterval(timer);
+          setIsOpen(true);
+          return null;
+        }
+        return prev ? prev - 1 : null;
+      });
+    }, 1000);
+
+    return () => {
+      clearTimeout(initTimer);
+      clearInterval(timer);
+    };
+  }, []);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -78,7 +82,7 @@ export default function PopupPage() {
               Surprise Modal
             </DialogTitle>
             <DialogDescription>
-              This popup appeared after a delay. This is a common scenario in QA automation that causes "flaky" tests if not handled correctly.
+              This popup appeared after a delay. This is a common scenario in QA automation that causes &quot;flaky&quot; tests if not handled correctly.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -94,11 +98,57 @@ export default function PopupPage() {
         </DialogContent>
       </Dialog>
 
-      <TipDrawer 
-        playwright={`await page.waitForSelector('text=Surprise Modal', { state: 'visible' })`}
-        java={`driver.findElement(By.cssSelector("..."));`}
-        python={`driver.find_element(By.CSS_SELECTOR, "...")`}
-        tip="Random delays are the primary cause of flakiness. Always use 'waitForSelector' or 'waitForEvent' with a reasonable timeout. Avoid using 'sleep()' or 'pause()' as they slow down the pipeline unnecessarily."
+      <TipDrawer
+        selector={`//*[contains(text(), 'Waiting for popup') or contains(text(), 'Popup in')]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('handles delayed popup', async ({ page }) => {
+  // ?popupDelay=0 makes the modal deterministic for tests
+  await page.goto('/elements/popup?popupDelay=0');
+  await expect(page.getByRole('heading', { name: 'Surprise Modal' }))
+    .toBeVisible({ timeout: 10000 });
+  await page.getByRole('button', { name: 'Dismiss Popup' }).click();
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_handles_delayed_popup(page):
+    page.goto("/elements/popup?popupDelay=0")
+    expect(page.get_by_role("heading", name="Surprise Modal")).to_be_visible(timeout=10000)
+    page.get_by_role("button", name="Dismiss Popup").click()`}
+        java={`import java.time.Duration;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+class PopupTest {
+    @Test
+    void handlesDelayedPopup() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/popup?popupDelay=0");
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+            .until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[normalize-space()='Surprise Modal']")));
+        driver.findElement(By.xpath("//button[normalize-space()='Dismiss Popup']"))
+              .click();
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_handles_delayed_popup():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/popup?popupDelay=0")
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
+        (By.XPATH, "//*[normalize-space()='Surprise Modal']")))
+    driver.find_element(By.XPATH, "//button[normalize-space()='Dismiss Popup']").click()
+    driver.quit()`}
+        tip="Random delays are the #1 cause of flake. Either wait on a real signal (waitForSelector / WebDriverWait) or push determinism into the page itself — this one accepts ?popupDelay=0 to fire instantly. Never sleep() to 'paper over' a missing wait."
       />
     </div>
   );

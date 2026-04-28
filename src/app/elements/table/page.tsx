@@ -57,7 +57,7 @@ export type User = {
   status: "active" | "inactive" | "pending";
 };
 
-export const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -294,11 +294,55 @@ export default function TablePage() {
         </div>
       </div>
 
-      <TipDrawer 
-        playwright={`page.getByRole('row', { name: 'Ha Do' }).getByRole('checkbox')`}
-        java={`driver.findElement(By.xpath("//row[text()='Ha Do']")).getByRole('checkbox');`}
-        python={`driver.find_element(By.XPATH, "//row[text()='Ha Do']").getByRole('checkbox')`}
-        tip="Use row-level scoping for checkboxes. Avoid generic selectors like 'input[type=checkbox]' which are fragile when the table sorts or filters."
+      <TipDrawer
+        selector={`//tr[.//*[normalize-space()='Ha Do']]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('selects a row by name', async ({ page }) => {
+  await page.goto('/elements/table');
+  const row = page.getByRole('row', { name: /Ha Do/ });
+  await row.getByRole('checkbox').check();
+  await expect(row).toHaveAttribute('data-state', 'selected');
+});`}
+        pythonPlaywright={`import re
+from playwright.sync_api import expect
+
+def test_selects_row(page):
+    page.goto("/elements/table")
+    row = page.get_by_role("row", name=re.compile("Ha Do"))
+    row.get_by_role("checkbox").check()
+    expect(row).to_have_attribute("data-state", "selected")`}
+        java={`import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TableTest {
+    @Test
+    void selectsRowByName() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/table");
+        WebElement row = driver.findElement(
+            By.xpath("//tr[.//*[normalize-space()='Ha Do']]"));
+        row.findElement(By.cssSelector("[role='checkbox']")).click();
+        assertEquals("selected", row.getAttribute("data-state"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_selects_row():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/table")
+    row = driver.find_element(
+        By.XPATH, "//tr[.//*[normalize-space()='Ha Do']]")
+    row.find_element(By.CSS_SELECTOR, "[role='checkbox']").click()
+    assert row.get_attribute("data-state") == "selected"
+    driver.quit()`}
+        tip="Always scope row interactions inside the row that contains the unique cell — never index by row number, since sort/filter shuffles them. role='row' + a name regex is the most stable handle in shadcn/Tanstack tables."
       />
     </div>
   );
