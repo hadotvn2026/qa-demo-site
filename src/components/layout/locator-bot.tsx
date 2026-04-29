@@ -531,8 +531,8 @@ export function LocatorBot({ selector, targetName, description }: LocatorBotProp
   };
 
   const handleInspectCustom = () => {
-    if (!customSelector.trim()) {
-      toast.error("Please enter a selector to inspect");
+    if (!currentSelector.trim()) {
+      toast.error("No selector available to inspect.");
       return;
     }
     handleTrySelector();
@@ -590,17 +590,18 @@ export function LocatorBot({ selector, targetName, description }: LocatorBotProp
             variant="outline"
             size="sm"
             onClick={handleInspectCustom}
-            disabled={!customSelector.trim()}
           >
             <Crosshair className="h-4 w-4" />
             Inspect
           </Button>
         </div>
-        {customSelector && (
-          <p className="text-xs text-muted-foreground">
-            Current selector: <code className="bg-muted px-1 py-0.5 rounded text-xs">{currentSelector}</code>
-          </p>
-        )}
+        <p className="text-xs text-muted-foreground">
+          {customSelector ? (
+            <>Current selector: <code className="bg-muted px-1 py-0.5 rounded text-xs">{currentSelector}</code></>
+          ) : (
+            <>No custom selector entered, using default locator.</>
+          )}
+        </p>
       </div>
 
       <div className="rounded-2xl border border-border bg-slate-950/40 p-3 min-h-[12rem] flex flex-col">
