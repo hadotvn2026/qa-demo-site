@@ -20,6 +20,7 @@ import {
   Home,
   Calculator,
   BookOpen,
+  UserPlus,
 } from "lucide-react";
 
 import {
@@ -34,6 +35,7 @@ import {
 
 const menuItems = [
   { name: "Authentication", href: "/elements/auth", icon: Lock },
+  { name: "Registration", href: "/elements/registration", icon: UserPlus },
   { name: "Dropdown", href: "/elements/dropdown", icon: ListFilter },
   { name: "Checkboxes", href: "/elements/checkboxes", icon: CheckSquare },
   { name: "Hyperlink", href: "/elements/hyperlinks", icon: Link2 },

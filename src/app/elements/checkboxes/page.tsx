@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TipDrawer } from "@/components/layout/tip-drawer";
+import { LocatorBot } from "@/components/layout/locator-bot";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -136,6 +137,7 @@ def test_toggles_custom_checkbox():
     driver.quit()`}
         tip="Div-based checkboxes won't respond to Playwright's check()/uncheck(). Use click() and assert on the data-state attribute (or a CSS class) — never trust the absence of an <input> to mean 'unchecked'."
       />
+      <LocatorBot selector="#custom-checkbox" targetName="custom checkbox" />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TipDrawer } from "@/components/layout/tip-drawer";
+import { LocatorBot } from "@/components/layout/locator-bot";
 import { cn } from "@/lib/utils";
 
 export default function DropdownPage() {
@@ -217,6 +218,7 @@ def test_selects_option():
     driver.quit()`}
         tip="Custom div-based dropdowns ignore the native <select> Selenium APIs. Click the trigger, then click an option found by visible text. Watch for portal-rendered menus that escape the trigger's parent — they're still in the DOM, just elsewhere."
       />
+      <LocatorBot selector="#custom-select-trigger" targetName="custom dropdown trigger" />
     </div>
   );
 }

@@ -71,6 +71,7 @@ export default function LandingPage() {
         <div className="flex flex-wrap gap-2">
           {[
             { label: "Auth", href: "/elements/auth" },
+            { label: "Registration", href: "/elements/registration" },
             { label: "Dropdown", href: "/elements/dropdown" },
             { label: "Checkboxes", href: "/elements/checkboxes" },
             { label: "Hyperlink", href: "/elements/hyperlinks" },

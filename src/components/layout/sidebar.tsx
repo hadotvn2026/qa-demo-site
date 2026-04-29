@@ -25,7 +25,8 @@ import {
   LayoutTemplate,
   ListTodo,
   Calculator,
-  BookOpen
+  BookOpen,
+  UserPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -34,6 +35,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { name: "Landing Page", href: "/", icon: LayoutDashboard },
   { name: "Authentication", href: "/elements/auth", icon: Lock },
+  { name: "Registration", href: "/elements/registration", icon: UserPlus },
   { name: "Dropdown", href: "/elements/dropdown", icon: ListFilter },
   { name: "Checkboxes", href: "/elements/checkboxes", icon: CheckSquare },
   { name: "Hyperlink", href: "/elements/hyperlinks", icon: Link2 },

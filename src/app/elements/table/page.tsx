@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TipDrawer } from "@/components/layout/tip-drawer";
+import { LocatorBot } from "@/components/layout/locator-bot";
 
 export type City = {
   id: string;
@@ -402,6 +403,7 @@ def test_selects_row():
     driver.quit()`}
         tip="Scope row interactions inside the row that contains the unique cell — never index by row number, since sort/filter shuffles them. role='row' + a name regex is the most stable handle in shadcn/Tanstack tables. The GDP column sorts numerically even though it renders formatted text."
       />
+      <LocatorBot selector="#table-filter" targetName="table filter" />
     </div>
   );
 }
