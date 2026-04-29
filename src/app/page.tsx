@@ -9,7 +9,7 @@ export default function LandingPage() {
       <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
         <div className="h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
         <span className="text-xs font-mono tracking-widest text-muted-foreground uppercase">
-          18/18 PASSING · PLAYWRIGHT + SELENIUM
+          20/20 PASSING · PLAYWRIGHT + SELENIUM
         </span>
       </div>
 
@@ -20,7 +20,7 @@ export default function LandingPage() {
 
       {/* Subhead */}
       <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl animate-in fade-in slide-in-from-bottom-5 duration-1000">
-        The 18 you can&apos;t fake. With reference tests that don&apos;t.
+        The 20 you can&apos;t fake. With reference tests that don&apos;t.
         A modern playground for QA engineers who value taste and stability.
       </p>
 
@@ -50,16 +50,16 @@ export default function LandingPage() {
         </div>
         <div className="p-6 font-mono text-sm space-y-2">
           <div className="flex flex-wrap gap-1">
-            {Array.from({ length: 18 }).map((_, i) => (
-              <span 
-                key={i} 
+            {Array.from({ length: 20 }).map((_, i) => (
+              <span
+                key={i}
                 className="inline-block h-2 w-2 rounded-full bg-primary opacity-0 animate-[test-dot_0.1s_forwards]"
                 style={{ animationDelay: `${0.5 + i * 0.15}s` }}
               />
             ))}
           </div>
           <div className="text-muted-foreground opacity-0 animate-[fade-in_0.5s_forwards] delay-[3s]">
-            <p className="mt-4 text-primary font-bold">18 passed in 3.1s</p>
+            <p className="mt-4 text-primary font-bold">20 passed in 3.4s</p>
             <p className="mt-1 text-zinc-600">Running against preview: flakelab.dev</p>
           </div>
         </div>
@@ -67,17 +67,37 @@ export default function LandingPage() {
 
       {/* Element Chips */}
       <div className="mt-16 w-full animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-6">Explore the elements</p>
+        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-6">Explore the playground</p>
         <div className="flex flex-wrap gap-2">
           {[
-            "Auth", "Dropdown", "Checkboxes", "Hyperlink", "Table", 
-            "Upload", "Download", "Slider", "Scroll", "Lazy Loading", 
-            "Drag-Drop", "Hover", "Context Click", "Popup",
-            "Date Picker", "JS Alerts", "Nested Frames", "Todo MVC"
+            { label: "Auth", href: "/elements/auth" },
+            { label: "Dropdown", href: "/elements/dropdown" },
+            { label: "Checkboxes", href: "/elements/checkboxes" },
+            { label: "Hyperlink", href: "/elements/hyperlinks" },
+            { label: "Table", href: "/elements/table" },
+            { label: "Upload", href: "/elements/upload" },
+            { label: "Download", href: "/elements/download" },
+            { label: "Slider", href: "/elements/slider" },
+            { label: "Scroll", href: "/elements/scroll" },
+            { label: "Lazy Loading", href: "/elements/lazy-loading" },
+            { label: "Drag-Drop", href: "/elements/drag-drop" },
+            { label: "Hover", href: "/elements/hover" },
+            { label: "Context Click", href: "/elements/context-click" },
+            { label: "Popup", href: "/elements/popup" },
+            { label: "Date Picker", href: "/elements/date-picker" },
+            { label: "JS Alerts", href: "/elements/alerts" },
+            { label: "Nested Frames", href: "/elements/nested-frames" },
+            { label: "Todo MVC", href: "/elements/todo-mvc" },
+            { label: "BMI Calculator", href: "/elements/bmi" },
+            { label: "Locator Cheatsheet", href: "/cheatsheet" },
           ].map((item) => (
-            <div key={item} className="px-3 py-1 rounded-full border border-border bg-secondary/50 text-[11px] font-medium text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors cursor-default">
-              {item}
-            </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              className="px-3 py-1 rounded-full border border-border bg-secondary/50 text-[11px] font-medium text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors"
+            >
+              {item.label}
+            </Link>
           ))}
         </div>
       </div>

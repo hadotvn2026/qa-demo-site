@@ -158,7 +158,6 @@ export default function AuthPage() {
         selector={`input[name="username"]`}
         targetName="Username field"
         description="Live locator guidance and a screenshot preview for the username input."
-        tip="Prefer locating the username field by its name or label so automation stays stable as the UI evolves."
       />
 
       <TipDrawer

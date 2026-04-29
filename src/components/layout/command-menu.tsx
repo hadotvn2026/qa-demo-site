@@ -19,6 +19,7 @@ import {
   Zap,
   Home,
   Calculator,
+  BookOpen,
 } from "lucide-react";
 
 import {
@@ -47,6 +48,7 @@ const menuItems = [
   { name: "Context Click", href: "/elements/context-click", icon: MousePointerClick },
   { name: "Random Popup", href: "/elements/popup", icon: Zap },
   { name: "BMI Calculator", href: "/elements/bmi", icon: Calculator },
+  { name: "Locator Cheatsheet", href: "/cheatsheet", icon: BookOpen },
 ];
 
 export function CommandMenu() {

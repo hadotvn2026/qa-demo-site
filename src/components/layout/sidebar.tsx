@@ -24,7 +24,8 @@ import {
   MessageSquareWarning,
   LayoutTemplate,
   ListTodo,
-  Calculator
+  Calculator,
+  BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -51,6 +52,7 @@ const navItems = [
   { name: "Todo MVC", href: "/elements/todo-mvc", icon: ListTodo },
   { name: "Random Popup", href: "/elements/popup", icon: Zap },
   { name: "BMI Calculator", href: "/elements/bmi", icon: Calculator },
+  { name: "Locator Cheatsheet", href: "/cheatsheet", icon: BookOpen },
 ];
 
 export function Sidebar() {

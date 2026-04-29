@@ -1,8 +1,9 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Bot, Brain, Copy, Crosshair, MousePointerClick, Sparkles, Search, Code } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bot, BookOpen, Brain, Copy, Crosshair, MousePointerClick, Sparkles, Search, Code, ExternalLink, Star } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ interface LocatorBotProps {
   selector: string;
   targetName: string;
   description?: string;
-  tip?: string;
 }
 
 const HIGHLIGHT_CLASS = "locator-bot-highlight";
@@ -90,8 +90,30 @@ function highlightSelector(selector: string): { matched: number; isXPath: boolea
   return { matched, isXPath };
 }
 
-function escapeLocatorValue(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+function rateLocator(loc: string): number {
+  if (/data-testid|aria-label/i.test(loc)) return 5;
+  if (/(@id\s*=|\[id=)/.test(loc)) return 4;
+  if (/(^|[^\w-])#[a-z][\w-]*/i.test(loc)) return 4;
+  if (/(@name\s*=|\[name=)/.test(loc)) return 4;
+  if (/(@role\s*=|\[role=)/.test(loc)) return 4;
+  if (/(@(href|for)\s*=|\[(href|for)=)/.test(loc)) return 3;
+  if (/(@(type|alt|title|placeholder)\s*=|\[(type|alt|title|placeholder)=)/.test(loc)) return 3;
+  if (/(contains\(text\(\)|:contains\(|normalize-space\(\)\s*=|text\(\)\s*=)/.test(loc)) {
+    return /^\/\/\*/.test(loc) ? 2 : 3;
+  }
+  if (/:(disabled|checked|enabled)/.test(loc)) return 3;
+  if (/:nth-(of-type|child|last-child|last-of-type)/.test(loc)) return 2;
+  if (/^\.[a-z]/i.test(loc) || /^[a-z]+\.[a-z]/i.test(loc)) return 2;
+  if (/^\/\/[a-z]+$/.test(loc) || /^[a-z]+$/.test(loc)) return 1;
+  return 2;
+}
+
+function sortByRating<T>(items: T[], getValue: (t: T) => string): T[] {
+  return [...items].sort((a, b) => {
+    const diff = rateLocator(getValue(b)) - rateLocator(getValue(a));
+    if (diff !== 0) return diff;
+    return getValue(a).localeCompare(getValue(b));
+  });
 }
 
 function generateSelector(el: Element): string {
@@ -133,6 +155,13 @@ interface ElementAnalysis {
   attrs: Array<{ name: string; value: string }>;
   cssCandidates: string[];
   xpathCandidates: string[];
+  cheatsheetMatches: CheatsheetMatch[];
+}
+
+interface CheatsheetMatch {
+  recipe: string;
+  xpath: string | null;
+  css: string | null;
 }
 
 const SKIP_ATTRS = new Set(["class", "style"]);
@@ -209,6 +238,147 @@ function buildSelectorCandidates(
   };
 }
 
+function matchCheatsheetRecipes(el: Element, text: string): CheatsheetMatch[] {
+  const tag = el.tagName.toLowerCase();
+  const matches: CheatsheetMatch[] = [];
+  const cssAttr = (v: string) => JSON.stringify(v);
+
+  const id = el.id || null;
+  const name = el.getAttribute("name");
+  const cls = (typeof el.className === "string" ? el.className : "").trim();
+  const role = el.getAttribute("role");
+  const type = el.getAttribute("type");
+  const placeholder = el.getAttribute("placeholder");
+  const ariaLabel = el.getAttribute("aria-label");
+  const href = el.getAttribute("href");
+  const testId = el.getAttribute("data-testid");
+  const alt = el.getAttribute("alt");
+  const title = el.getAttribute("title");
+  const isDisabled = el.hasAttribute("disabled");
+  const isChecked =
+    el.hasAttribute("checked") ||
+    (el instanceof HTMLInputElement && el.checked === true);
+
+  matches.push({
+    recipe: "Element <E> by relative reference",
+    xpath: `//${tag}`,
+    css: tag,
+  });
+
+  if (tag === "img") {
+    matches.push({ recipe: "Image element", xpath: "//img", css: "img" });
+  }
+  if (tag === "a") {
+    matches.push({ recipe: "Link element", xpath: "//a", css: "a" });
+  }
+
+  if (id) {
+    matches.push({
+      recipe: "Element with id I",
+      xpath: `//*[@id=${xpathLiteral(id)}]`,
+      css: `#${CSS.escape(id)}`,
+    });
+    matches.push({
+      recipe: "Element <E> with id I",
+      xpath: `//${tag}[@id=${xpathLiteral(id)}]`,
+      css: `${tag}#${CSS.escape(id)}`,
+    });
+  }
+
+  if (name) {
+    matches.push({
+      recipe: "Element with name N",
+      xpath: `//*[@name=${xpathLiteral(name)}]`,
+      css: `[name=${cssAttr(name)}]`,
+    });
+    matches.push({
+      recipe: "Element <E> with name N",
+      xpath: `//${tag}[@name=${xpathLiteral(name)}]`,
+      css: `${tag}[name=${cssAttr(name)}]`,
+    });
+  }
+
+  if (cls) {
+    const firstClass = cls.split(/\s+/).filter(Boolean)[0];
+    if (firstClass) {
+      matches.push({
+        recipe: "Element with a class C",
+        xpath: `//*[contains(concat(' ', @class, ' '), ' ${firstClass} ')]`,
+        css: `.${CSS.escape(firstClass)}`,
+      });
+      matches.push({
+        recipe: "Element <E> with a class C",
+        xpath: `//${tag}[contains(concat(' ', @class, ' '), ' ${firstClass} ')]`,
+        css: `${tag}.${CSS.escape(firstClass)}`,
+      });
+    }
+  }
+
+  const labeledAttrs: Array<[string, string | null]> = [
+    ["type", type],
+    ["placeholder", placeholder],
+    ["aria-label", ariaLabel],
+    ["role", role],
+    ["data-testid", testId],
+    ["alt", alt],
+    ["title", title],
+  ];
+  for (const [a, v] of labeledAttrs) {
+    if (!v) continue;
+    matches.push({
+      recipe: `Element <E> with attribute @${a} = '${v}' exactly`,
+      xpath: `//${tag}[@${a}=${xpathLiteral(v)}]`,
+      css: `${tag}[${a}=${cssAttr(v)}]`,
+    });
+  }
+
+  if (tag === "a" && href) {
+    matches.push({
+      recipe: "<a> with target link 'url'",
+      xpath: `//a[@href=${xpathLiteral(href)}]`,
+      css: `a[href=${cssAttr(href)}]`,
+    });
+  }
+
+  if (text) {
+    matches.push({
+      recipe: "Element containing text 't' exactly",
+      xpath: `//*[normalize-space()=${xpathLiteral(text)}]`,
+      css: null,
+    });
+    matches.push({
+      recipe: "Element <E> containing text 't'",
+      xpath: `//${tag}[contains(text(),${xpathLiteral(text)})]`,
+      css: `${tag}:contains(${cssAttr(text)})`,
+    });
+    if (tag === "a") {
+      matches.push({
+        recipe: "<a> containing text 't' exactly",
+        xpath: `//a[.=${xpathLiteral(text)}]`,
+        css: null,
+      });
+    }
+  }
+
+  if (isDisabled) {
+    matches.push({
+      recipe: "User interface element <E> that is disabled",
+      xpath: `//${tag}[@disabled]`,
+      css: `${tag}:disabled`,
+    });
+  }
+
+  if (isChecked) {
+    matches.push({
+      recipe: "Checkbox (or radio button) that is checked",
+      xpath: "//*[@checked]",
+      css: "*:checked",
+    });
+  }
+
+  return matches;
+}
+
 function analyzeElement(el: Element): ElementAnalysis {
   const tag = el.tagName.toLowerCase();
   const text = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 80);
@@ -221,52 +391,18 @@ function analyzeElement(el: Element): ElementAnalysis {
   }
 
   const { css, xpath } = buildSelectorCandidates(tag, text, attrs);
-  return { tag, text, attrs, cssCandidates: css, xpathCandidates: xpath };
+  const cheatsheetMatches = matchCheatsheetRecipes(el, text);
+  return {
+    tag,
+    text,
+    attrs,
+    cssCandidates: css,
+    xpathCandidates: xpath,
+    cheatsheetMatches,
+  };
 }
 
-function getLocatorHints(selector: string) {
-  const hints = [] as Array<{ label: string; code: string; language: string }>;
-  const escaped = escapeLocatorValue(selector);
-  const isXPath = selector.startsWith("/") || selector.startsWith("(");
-
-  if (isXPath) {
-    hints.push({
-      label: "Playwright (XPath)",
-      code: `await page.locator('xpath=${selector}').click();`,
-      language: "typescript",
-    });
-    hints.push({
-      label: "Selenium (Java XPath)",
-      code: `WebElement element = driver.findElement(By.xpath("${escaped}"));`,
-      language: "java",
-    });
-    hints.push({
-      label: "Selenium (Py XPath)",
-      code: `element = driver.find_element(By.XPATH, "${escaped}")`,
-      language: "python",
-    });
-  } else {
-    hints.push({
-      label: "Playwright (CSS)",
-      code: `await page.locator("${escaped}").click();`,
-      language: "typescript",
-    });
-    hints.push({
-      label: "Selenium (Java CSS)",
-      code: `WebElement element = driver.findElement(By.cssSelector("${escaped}"));`,
-      language: "java",
-    });
-    hints.push({
-      label: "Selenium (Py CSS)",
-      code: `element = driver.find_element(By.CSS_SELECTOR, "${escaped}")`,
-      language: "python",
-    });
-  }
-
-  return hints;
-}
-
-export function LocatorBot({ selector, targetName, description, tip }: LocatorBotProps) {
+export function LocatorBot({ selector, targetName, description }: LocatorBotProps) {
   const [htmlContent, setHtmlContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -278,7 +414,6 @@ export function LocatorBot({ selector, targetName, description, tip }: LocatorBo
   const containerRef = useRef<HTMLDivElement>(null);
 
   const currentSelector = customSelector || selector;
-  const hints = useMemo(() => getLocatorHints(currentSelector), [currentSelector]);
 
   useEffect(() => {
     if (!picking) return;
@@ -468,72 +603,41 @@ export function LocatorBot({ selector, targetName, description, tip }: LocatorBo
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-slate-950/40 p-3 min-h-[12rem] flex flex-col">
-            <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-3">
-              <Code className="h-4 w-4" aria-hidden="true" />
-              <span>Element HTML</span>
-            </div>
-            <div className="flex-1 overflow-hidden rounded-2xl border border-border bg-black/40">
-              {loading ? (
-                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Capturing element HTML...</div>
-              ) : htmlContent ? (
-                <div className="h-full overflow-auto p-4">
-                  <pre className="text-xs text-green-400 font-mono whitespace-pre-wrap break-all">
-                    {htmlContent}
-                  </pre>
-                </div>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-sm text-muted-foreground">
-                  <Sparkles className="h-5 w-5" />
-                  <p>{error ?? "No element HTML available."}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <BrainstormPanel
-            analysis={analysis}
-            stage={thinkStage}
-            copied={copied}
-            onCopy={handleCopy}
-          />
+      <div className="rounded-2xl border border-border bg-slate-950/40 p-3 min-h-[12rem] flex flex-col">
+        <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-3">
+          <Code className="h-4 w-4" aria-hidden="true" />
+          <span>Element HTML</span>
         </div>
-
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-slate-950/40 p-4">
-            <p className="text-sm font-semibold text-muted-foreground mb-2">Recommended locators</p>
-            <div className="space-y-3">
-              {hints.map((hint) => (
-                <div key={hint.label} className="rounded-2xl border border-border bg-background/70 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                      {hint.label}
-                    </span>
-                    <Button
-                      variant={copied === hint.code ? "secondary" : "outline"}
-                      size="icon"
-                      onClick={() => handleCopy(hint.code)}
-                      aria-label={`Copy ${hint.label} code`}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <pre className="whitespace-pre-wrap break-words text-xs text-foreground">{hint.code}</pre>
-                </div>
-              ))}
+        <div className="flex-1 overflow-hidden rounded-2xl border border-border bg-black/40">
+          {loading ? (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Capturing element HTML...</div>
+          ) : htmlContent ? (
+            <div className="h-full overflow-auto p-4">
+              <pre className="text-xs text-green-400 font-mono whitespace-pre-wrap break-all">
+                {htmlContent}
+              </pre>
             </div>
-          </div>
-
-          {tip ? (
-            <div className="rounded-2xl border border-border bg-slate-950/40 p-4">
-              <p className="text-sm font-semibold text-muted-foreground mb-2">Tip</p>
-              <p className="text-sm text-foreground">{tip}</p>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-sm text-muted-foreground">
+              <Sparkles className="h-5 w-5" />
+              <p>{error ?? "No element HTML available."}</p>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
+
+      <BrainstormPanel
+        analysis={analysis}
+        stage={thinkStage}
+        copied={copied}
+        onCopy={handleCopy}
+      />
+
+      <CheatsheetPanel
+        matches={analysis?.cheatsheetMatches ?? null}
+        copied={copied}
+        onCopy={handleCopy}
+      />
     </div>
   );
 }
@@ -652,12 +756,14 @@ interface CandidateListProps {
 }
 
 function CandidateList({ label, accent, items, copied, onCopy }: CandidateListProps) {
+  const sorted = sortByRating(items, (s) => s);
   return (
     <div className="mt-3 space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
       <div className="text-muted-foreground">→ {label}:</div>
       <div className="ml-4 space-y-1">
-        {items.map((s) => (
+        {sorted.map((s) => (
           <div key={s} className="flex items-center gap-2">
+            <StarRating value={rateLocator(s)} />
             <code className={`flex-1 break-all text-xs ${accent}`}>{s}</code>
             <Button
               variant={copied === s ? "secondary" : "ghost"}
@@ -671,6 +777,140 @@ function CandidateList({ label, accent, items, copied, onCopy }: CandidateListPr
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function StarRating({ value }: { value: number }) {
+  const clamped = Math.max(0, Math.min(5, value));
+  return (
+    <span
+      className="inline-flex shrink-0 items-center gap-0.5"
+      aria-label={`Recommendation: ${clamped} out of 5`}
+      title={`${clamped} / 5`}
+    >
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          key={i}
+          className={`h-3 w-3 ${i < clamped ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+        />
+      ))}
+    </span>
+  );
+}
+
+interface CheatsheetPanelProps {
+  matches: CheatsheetMatch[] | null;
+  copied: string | null;
+  onCopy: (code: string) => void;
+}
+
+function CheatsheetPanel({ matches, copied, onCopy }: CheatsheetPanelProps) {
+  return (
+    <div className="rounded-2xl border border-border bg-slate-950/40 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-amber-300" aria-hidden="true" />
+          <span className="text-sm font-semibold">Cheatsheet matches</span>
+          <span className="text-xs text-muted-foreground">
+            Named recipes from the Rosetta Stone, instantiated for this element.
+          </span>
+        </div>
+        <Link
+          href="/cheatsheet"
+          className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
+        >
+          View full cheatsheet
+          <ExternalLink className="h-3 w-3" />
+        </Link>
+      </div>
+
+      {!matches || matches.length === 0 ? (
+        <p className="text-xs italic text-muted-foreground">
+          Pick or query an element to surface matching recipes.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left text-xs">
+            <thead className="text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground">
+              <tr>
+                <th className="px-2 py-2 font-medium">Score</th>
+                <th className="px-2 py-2 font-medium">Recipe</th>
+                <th className="px-2 py-2 font-medium text-emerald-300">XPath</th>
+                <th className="px-2 py-2 font-medium text-sky-300">CSS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...matches]
+                .map((m) => ({
+                  ...m,
+                  score: Math.max(
+                    m.xpath ? rateLocator(m.xpath) : 0,
+                    m.css ? rateLocator(m.css) : 0,
+                  ),
+                }))
+                .sort((a, b) => b.score - a.score)
+                .map((m, i) => (
+                  <tr
+                    key={`${m.recipe}-${i}`}
+                    className="border-t border-border/60 align-top hover:bg-muted/10"
+                  >
+                    <td className="px-2 py-2">
+                      <StarRating value={m.score} />
+                    </td>
+                    <td className="px-2 py-2 font-medium text-foreground">{m.recipe}</td>
+                    <td className="px-2 py-2">
+                      <CheatsheetCell
+                        value={m.xpath}
+                        accent="text-emerald-300"
+                        copied={copied === m.xpath}
+                        onCopy={onCopy}
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <CheatsheetCell
+                        value={m.css}
+                        accent="text-sky-300"
+                        copied={copied === m.css}
+                        onCopy={onCopy}
+                      />
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CheatsheetCell({
+  value,
+  accent,
+  copied,
+  onCopy,
+}: {
+  value: string | null;
+  accent: string;
+  copied: boolean;
+  onCopy: (code: string) => void;
+}) {
+  if (!value) {
+    return <span className="italic text-muted-foreground/60">NA</span>;
+  }
+  return (
+    <div className="flex items-start gap-1.5">
+      <code className={`flex-1 break-all font-mono ${accent}`}>{value}</code>
+      <Button
+        variant={copied ? "secondary" : "ghost"}
+        size="icon"
+        onClick={() => onCopy(value)}
+        className="h-5 w-5 shrink-0"
+        aria-label={`Copy ${value}`}
+      >
+        <Copy className="h-3 w-3" />
+      </Button>
     </div>
   );
 }
