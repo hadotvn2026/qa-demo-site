@@ -39,7 +39,7 @@ export default function DropdownPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Select onValueChange={setStandardValue} value={standardValue}>
-              <SelectTrigger className="w-full h-11">
+              <SelectTrigger data-testid="dropdown-shadcn-trigger" className="w-full h-11">
                 <SelectValue placeholder="Select a framework" />
               </SelectTrigger>
               <SelectContent>
@@ -63,8 +63,9 @@ export default function DropdownPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative">
-              <div 
+              <div
                 id="custom-select-trigger"
+                data-testid="dropdown-custom-trigger"
                 onClick={() => setIsCustomOpen(!isCustomOpen)}
                 className="flex h-11 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm hover:bg-secondary/50 cursor-pointer"
               >
@@ -109,6 +110,7 @@ export default function DropdownPage() {
             <select
               id="native-framework"
               name="framework"
+              data-testid="dropdown-native"
               value={nativeValue}
               onChange={(e) => setNativeValue(e.target.value)}
               className="h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -140,6 +142,7 @@ export default function DropdownPage() {
             <select
               id="native-languages"
               name="languages"
+              data-testid="dropdown-multiple"
               multiple
               value={multipleValues}
               onChange={(e) =>

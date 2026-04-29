@@ -130,7 +130,7 @@ export default function UploadPage() {
                 )}
 
                 {!uploaded && !uploading && (
-                  <Button className="w-full h-11" onClick={handleUpload}>
+                  <Button data-testid="upload-button" className="w-full h-11" onClick={handleUpload}>
                     Upload File
                   </Button>
                 )}
@@ -214,6 +214,63 @@ def test_uploads_a_file(tmp_path):
     assert '"status": "success"' in driver.find_element(By.TAG_NAME, "body").text
     driver.quit()`}
         tip="Both Playwright (setInputFiles) and Selenium (sendKeys) drive uploads through the hidden <input type=file>, NOT the styled drop zone. The visible button is decorative — find the input and feed it an absolute path. For drag-drop-only zones, you'll need to dispatch a synthetic 'drop' DataTransfer event."
+      />
+
+      <TipDrawer
+        selector={`[data-testid="upload-button"]`}
+        playwright={`import { test, expect } from '@playwright/test';
+import path from 'node:path';
+
+test('upload file by test id button', async ({ page }) => {
+  await page.goto('/elements/upload');
+  const fileInput = page.locator('input[type=file]');
+  await fileInput.setInputFiles(path.resolve(__dirname, 'fixtures/sample.png'));
+  const uploadBtn = page.getByTestId('upload-button');
+  await uploadBtn.click();
+  await expect(page.getByText(/'"status": "success"'/)).toBeVisible();
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_upload_file_by_test_id(page, tmp_path):
+    f = tmp_path / "sample.png"
+    f.write_bytes(b"\\x89PNG\\r\\n\\x1a\\n")
+    page.goto("/elements/upload")
+    page.locator("input[type=file]").set_input_files(str(f))
+    upload_btn = page.get_by_test_id("upload-button")
+    upload_btn.click()
+    expect(page.get_by_text('"status": "success"')).to_be_visible()`}
+        java={`import org.testng.annotations.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.testng.Assert.assertTrue;
+
+class UploadByTestIdTest {
+    @Test
+    void uploadFileByTestId() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/upload");
+        driver.findElement(By.cssSelector("input[type=file]")).sendKeys("/tmp/sample.png");
+        driver.findElement(By.cssSelector("[data-testid='upload-button']")).click();
+        String body = driver.findElement(By.tagName("body")).getText();
+        assertTrue(body.contains("\\\"status\\\": \\\"success\\\""));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def test_upload_file_by_test_id(tmp_path):
+    f = tmp_path / "sample.png"
+    f.write_bytes(b"\\x89PNG\\r\\n\\x1a\\n")
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/upload")
+    driver.find_element(By.CSS_SELECTOR, "input[type=file]").send_keys(str(f))
+    driver.find_element(By.CSS_SELECTOR, "[data-testid='upload-button']").click()
+    body = driver.find_element(By.TAG_NAME, "body").text
+    assert '\\\"status\\\": \\\"success\\\"' in body
+    driver.quit()`}
+        tip="Test IDs make it easy to target UI elements reliably. By using data-testid on interactive elements like buttons, you decouple your tests from layout changes or label updates. Query by test ID first — it's stable, explicit, and survives refactoring. Fall back to role/text locators only when test IDs aren't available."
       />
     </div>
   );

@@ -31,7 +31,7 @@ export default function ScrollPage() {
             <CardDescription>Click to jump to the target at the bottom of the page.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={scrollToBottom} className="w-full gap-2">
+            <Button data-testid="scroll-to-target" onClick={scrollToBottom} className="w-full gap-2">
               <ArrowDown className="h-4 w-4" />
               Scroll to Target
             </Button>
@@ -51,7 +51,7 @@ export default function ScrollPage() {
             >
               <p className="text-sm text-muted-foreground">Scroll down to find the hidden button...</p>
               <div className="h-64" />
-              <Button id="nested-button" variant="secondary" className="w-full">
+              <Button id="nested-button" data-testid="scroll-nested-button" variant="secondary" className="w-full">
                 Hidden Button Found!
               </Button>
               <div className="h-12" />
@@ -63,7 +63,7 @@ export default function ScrollPage() {
       {/* Long spacer for page scroll */}
       <div className="h-[150vh]" />
 
-      <div ref={bottomRef} className="p-8 rounded-xl border border-primary bg-primary/5 text-center">
+      <div ref={bottomRef} data-testid="scroll-target" className="p-8 rounded-xl border border-primary bg-primary/5 text-center">
         <h2 className="text-2xl font-bold text-primary mb-4">Target Reached!</h2>
         <p className="text-muted-foreground max-w-md mx-auto">
           You successfully scrolled this element into the viewport.

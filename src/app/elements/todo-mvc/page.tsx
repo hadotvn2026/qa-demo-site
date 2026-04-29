@@ -121,6 +121,7 @@ export default function TodoMvcPage() {
             <span className="text-xl leading-none rotate-90">❯</span>
           </Button>
           <input
+            data-testid="todo-new"
             className="w-full bg-transparent px-4 py-4 text-xl outline-none placeholder:text-muted-foreground placeholder:italic"
             placeholder="What needs to be done?"
             value={inputValue}
@@ -281,6 +282,60 @@ def test_completes_todo():
     assert "line-through" in cls or "completed" in cls
     driver.quit()`}
         tip="TodoMVC is the standard benchmark for UI tests. Filter the list by text first, then act inside that scope — index-based lookups break the moment the user adds, deletes, or filters. Assert on a visible style change, not just a state attribute the user can't see."
+      />
+
+      <TipDrawer
+        selector={`[data-testid="todo-new"]`}
+        playwright={`import { test, expect } from '@playwright/test';
+
+test('add a new todo by test id', async ({ page }) => {
+  await page.goto('/elements/todo-mvc');
+  const input = page.getByTestId('todo-new');
+  await input.fill('Write test cases');
+  await input.press('Enter');
+  await expect(page.locator('.todo-list li')).toContainText('Write test cases');
+});`}
+        pythonPlaywright={`from playwright.sync_api import expect
+
+def test_add_todo_by_test_id(page):
+    page.goto("/elements/todo-mvc")
+    input_field = page.get_by_test_id("todo-new")
+    input_field.fill("Write test cases")
+    input_field.press("Enter")
+    expect(page.locator(".todo-list li")).to_contain_text("Write test cases")`}
+        java={`import org.testng.annotations.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import static org.testng.Assert.assertTrue;
+
+class TodoByTestIdTest {
+    @Test
+    void addTodoByTestId() {
+        WebDriver driver = new ChromeDriver();
+        driver.get("http://localhost:3000/elements/todo-mvc");
+        WebElement input = driver.findElement(By.cssSelector("[data-testid='todo-new']"));
+        input.sendKeys("Write test cases");
+        input.sendKeys(Keys.ENTER);
+        assertTrue(driver.findElement(By.className("todo-list")).getText().contains("Write test cases"));
+        driver.quit();
+    }
+}`}
+        python={`from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
+def test_add_todo_by_test_id():
+    driver = webdriver.Chrome()
+    driver.get("http://localhost:3000/elements/todo-mvc")
+    input_field = driver.find_element(By.CSS_SELECTOR, "[data-testid='todo-new']")
+    input_field.send_keys("Write test cases")
+    input_field.send_keys(Keys.ENTER)
+    todo_list = driver.find_element(By.CLASS_NAME, "todo-list")
+    assert "Write test cases" in todo_list.text
+    driver.quit()`}
+        tip="Testing by test IDs is the most resilient way of testing. Even if text or role attributes change, the test will still pass because the data-testid is explicit and stable. QA engineers and developers should define explicit test IDs and query them with page.getByTestId(). However, test IDs are not user-facing. If the role or text value is important, use user-facing locators like role or text locators instead."
       />
     </div>
   );

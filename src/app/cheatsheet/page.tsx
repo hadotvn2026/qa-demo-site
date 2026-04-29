@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Copy, ExternalLink, Search } from "lucide-react";
+import { Check, Copy, ExternalLink, Search, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,6 +75,53 @@ export default function CheatsheetPage() {
           . Click any pattern to copy.
         </p>
       </div>
+
+      <Card className="border-amber-500/40 bg-amber-500/5 backdrop-blur-sm">
+        <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
+          <span className="inline-flex items-center gap-0.5" aria-label="5 out of 5 stars">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            ))}
+          </span>
+          <CardTitle className="text-base">Recommended: Locate by test id</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <p className="text-foreground/90">
+            Testing by test ids is the most resilient way of testing as even if your text or role of
+            the attribute changes, the test will still pass. QAs and developers should define
+            explicit test ids and query them with{" "}
+            <code className="rounded bg-muted px-1 py-0.5 text-xs">page.getByTestId()</code>.
+          </p>
+          <p className="text-muted-foreground">
+            However, testing by test ids is not user-facing. If the role or text value is important
+            to you then consider using user-facing locators such as <strong>role</strong> and{" "}
+            <strong>text</strong> locators.
+          </p>
+          <p className="text-muted-foreground">For example, consider the following DOM structure:</p>
+
+          <div className="rounded-lg border border-border bg-slate-950/60 p-3">
+            <pre className="overflow-x-auto font-mono text-xs text-emerald-300">
+              {`<button data-testid="directions">Itinéraire</button>`}
+            </pre>
+          </div>
+
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Locate it</p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <CodeSwatch
+              label="Playwright"
+              code={`page.getByTestId('directions').click()`}
+            />
+            <CodeSwatch
+              label="Selenium (Java)"
+              code={`driver.findElement(By.cssSelector("[data-testid='directions']"))`}
+            />
+            <CodeSwatch
+              label="CSS / XPath"
+              code={`[data-testid="directions"]\n//*[@data-testid="directions"]`}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-border bg-card/50 backdrop-blur-sm">
         <CardContent className="space-y-4 py-4">
@@ -161,6 +208,19 @@ export default function CheatsheetPage() {
           </Card>
         ))
       )}
+    </div>
+  );
+}
+
+function CodeSwatch({ label, code }: { label: string; code: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-slate-950/60 p-3">
+      <p className="mb-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
+      <pre className="overflow-x-auto whitespace-pre-wrap break-all font-mono text-xs text-foreground">
+        {code}
+      </pre>
     </div>
   );
 }

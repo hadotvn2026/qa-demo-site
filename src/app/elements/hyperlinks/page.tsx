@@ -25,7 +25,7 @@ export default function HyperlinksPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Link href="/" className="text-sm text-primary hover:underline font-medium">
+            <Link data-testid="link-internal" href="/" className="text-sm text-primary hover:underline font-medium">
               Back to Home
             </Link>
           </CardContent>
@@ -40,9 +40,10 @@ export default function HyperlinksPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <a 
-              href="https://playwright.dev" 
-              target="_blank" 
+            <a
+              data-testid="link-new-tab"
+              href="https://playwright.dev"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-primary hover:underline font-medium inline-flex items-center gap-1"
             >
@@ -60,7 +61,7 @@ export default function HyperlinksPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <a href="mailto:support@flakelab.dev" className="text-sm text-primary hover:underline font-medium">
+            <a data-testid="link-mailto" href="mailto:support@flakelab.dev" className="text-sm text-primary hover:underline font-medium">
               Contact Support
             </a>
           </CardContent>
@@ -75,7 +76,7 @@ export default function HyperlinksPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <a href="/this-page-does-not-exist" className="text-sm text-destructive hover:underline font-medium">
+            <a data-testid="link-broken" href="/this-page-does-not-exist" className="text-sm text-destructive hover:underline font-medium">
               Go to 404 Page
             </a>
           </CardContent>
@@ -90,7 +91,7 @@ export default function HyperlinksPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <a href="#footer-target" className="text-sm text-primary hover:underline font-medium">
+            <a data-testid="link-anchor" href="#footer-target" className="text-sm text-primary hover:underline font-medium">
               Jump to Footer
             </a>
           </CardContent>

@@ -19,9 +19,10 @@ export default function NestedFramesPage() {
           <CardDescription>An iframe containing other iframes. Find the text in the MIDDLE frame.</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden relative min-h-[400px]">
-          <iframe 
-            src="/frames/nested.html" 
+          <iframe
+            src="/frames/nested.html"
             title="nested frames"
+            data-testid="nested-frames-outer"
             className="absolute inset-0 w-full h-full rounded-b-xl border-t border-border"
           />
         </CardContent>

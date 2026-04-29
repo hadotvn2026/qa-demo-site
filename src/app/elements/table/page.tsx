@@ -238,6 +238,7 @@ export default function TablePage() {
           <div className="relative w-full sm:max-w-sm">
             <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              data-testid="table-filter"
               placeholder="Filter cities..."
               value={(table.getColumn("city")?.getFilterValue() as string) ?? ""}
               onChange={(event) =>
@@ -248,7 +249,7 @@ export default function TablePage() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button data-testid="table-columns" variant="outline" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -299,6 +300,7 @@ export default function TablePage() {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    data-testid={`table-row-${(row.original as City).city.toLowerCase().replace(/[^a-z]+/g, "-")}`}
                     className="group"
                   >
                     {row.getVisibleCells().map((cell) => (

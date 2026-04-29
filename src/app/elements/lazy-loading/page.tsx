@@ -52,7 +52,7 @@ export default function LazyLoadingPage() {
 
       <div className="grid gap-6 sm:grid-cols-2">
         {items.map((id) => (
-          <Card key={id} className="overflow-hidden border-border bg-card/50">
+          <Card key={id} data-testid={`lazy-item-${id}`} className="overflow-hidden border-border bg-card/50">
             <div className="aspect-video bg-muted flex items-center justify-center relative">
               <LazyImage id={id} />
             </div>
@@ -64,7 +64,7 @@ export default function LazyLoadingPage() {
         ))}
       </div>
 
-      <div ref={observerTarget} className="py-12 flex flex-col items-center justify-center gap-4">
+      <div ref={observerTarget} data-testid="lazy-sentinel" className="py-12 flex flex-col items-center justify-center gap-4">
         {loading ? (
           <>
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

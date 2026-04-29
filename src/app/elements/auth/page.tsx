@@ -110,7 +110,7 @@ export default function AuthPage() {
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="tomsmith" className="pl-9" {...field} disabled={attempts >= 3} />
+                          <Input data-testid="auth-username" placeholder="tomsmith" className="pl-9" {...field} disabled={attempts >= 3} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -126,14 +126,14 @@ export default function AuthPage() {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          <Input type="password" placeholder="••••••••" className="pl-9" {...field} disabled={attempts >= 3} />
+                          <Input data-testid="auth-password" type="password" placeholder="••••••••" className="pl-9" {...field} disabled={attempts >= 3} />
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full h-11" disabled={isLoading || attempts >= 3}>
+                <Button data-testid="auth-signin" type="submit" className="w-full h-11" disabled={isLoading || attempts >= 3}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

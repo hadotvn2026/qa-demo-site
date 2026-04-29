@@ -68,8 +68,9 @@ export default function DownloadPage() {
               </div>
             )}
             
-            <Button 
-              className="w-full h-11" 
+            <Button
+              data-testid="download-csv"
+              className="w-full h-11"
               onClick={handleDownload}
               disabled={downloading}
             >

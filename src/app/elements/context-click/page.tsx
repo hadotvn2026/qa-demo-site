@@ -29,30 +29,30 @@ export default function ContextClickPage() {
 
       <div className="flex justify-center py-12">
         <ContextMenu>
-          <ContextMenuTrigger className="flex h-[300px] w-full max-w-md flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card/50 transition-colors hover:bg-secondary/30">
+          <ContextMenuTrigger data-testid="context-click-zone" className="flex h-[300px] w-full max-w-md flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card/50 transition-colors hover:bg-secondary/30">
             <div className="text-center space-y-2">
               <p className="text-lg font-bold">Right click here</p>
               <p className="text-xs text-muted-foreground">To see the custom context menu</p>
             </div>
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">
-            <ContextMenuItem onClick={() => handleAction("Copy")}>
+            <ContextMenuItem data-testid="context-menu-copy" onClick={() => handleAction("Copy")}>
               <Copy className="mr-2 h-4 w-4" />
               <span>Copy</span>
               <ContextMenuShortcut>⌘C</ContextMenuShortcut>
             </ContextMenuItem>
-            <ContextMenuItem onClick={() => handleAction("Edit")}>
+            <ContextMenuItem data-testid="context-menu-edit" onClick={() => handleAction("Edit")}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
               <ContextMenuShortcut>⌘E</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuSeparator />
-            <ContextMenuItem onClick={() => handleAction("Share")}>
+            <ContextMenuItem data-testid="context-menu-share" onClick={() => handleAction("Share")}>
               <Share className="mr-2 h-4 w-4" />
               <span>Share</span>
             </ContextMenuItem>
             <ContextMenuSeparator />
-            <ContextMenuItem onClick={() => handleAction("Delete")} className="text-destructive">
+            <ContextMenuItem data-testid="context-menu-delete" onClick={() => handleAction("Delete")} className="text-destructive">
               <Trash className="mr-2 h-4 w-4" />
               <span>Delete</span>
               <ContextMenuShortcut>⌘⌫</ContextMenuShortcut>

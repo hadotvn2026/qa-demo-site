@@ -75,7 +75,7 @@ export default function PopupPage() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent data-testid="popup-modal" className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-primary" />
@@ -91,7 +91,7 @@ export default function PopupPage() {
             </p>
           </div>
           <DialogFooter>
-            <Button onClick={() => setIsOpen(false)} className="w-full">
+            <Button data-testid="popup-dismiss" onClick={() => setIsOpen(false)} className="w-full">
               Dismiss Popup
             </Button>
           </DialogFooter>

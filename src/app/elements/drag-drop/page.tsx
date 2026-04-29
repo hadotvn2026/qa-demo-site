@@ -173,6 +173,7 @@ function SortableItem({ id, text }: { id: string; text: string }) {
       ref={setNodeRef}
       style={style}
       id={`item-${id}`}
+      data-testid={`drag-item-${id}`}
       className={cn(
         "flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-shadow",
         isDragging ? "shadow-2xl ring-2 ring-primary/20 z-50 opacity-80" : "hover:border-primary/30"

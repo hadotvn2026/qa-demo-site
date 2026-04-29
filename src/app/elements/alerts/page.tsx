@@ -39,7 +39,7 @@ export default function JSAlertsPage() {
             <CardDescription>A simple alert dialog with an OK button.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={triggerAlert} className="w-full">Click for JS Alert</Button>
+            <Button data-testid="alerts-alert" onClick={triggerAlert} className="w-full">Click for JS Alert</Button>
           </CardContent>
         </Card>
 
@@ -49,7 +49,7 @@ export default function JSAlertsPage() {
             <CardDescription>A dialog with OK and Cancel buttons.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={triggerConfirm} variant="secondary" className="w-full">Click for JS Confirm</Button>
+            <Button data-testid="alerts-confirm" onClick={triggerConfirm} variant="secondary" className="w-full">Click for JS Confirm</Button>
           </CardContent>
         </Card>
 
@@ -59,14 +59,14 @@ export default function JSAlertsPage() {
             <CardDescription>A dialog that requires text input.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={triggerPrompt} variant="outline" className="w-full">Click for JS Prompt</Button>
+            <Button data-testid="alerts-prompt" onClick={triggerPrompt} variant="outline" className="w-full">Click for JS Prompt</Button>
           </CardContent>
         </Card>
       </div>
 
       <div className="rounded-lg border border-border bg-card p-4">
         <h3 className="font-semibold mb-2 text-foreground">Result:</h3>
-        <p id="result" className="text-sm text-emerald-500 font-mono h-5">
+        <p id="result" data-testid="alerts-result" className="text-sm text-emerald-500 font-mono h-5">
           {result}
         </p>
       </div>

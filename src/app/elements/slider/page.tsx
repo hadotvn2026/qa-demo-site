@@ -26,6 +26,7 @@ export default function SliderPage() {
           <CardContent className="space-y-10 py-10">
             <div className="relative">
               <Slider
+                data-testid="slider-volume"
                 defaultValue={[50]}
                 max={100}
                 step={1}
@@ -33,7 +34,8 @@ export default function SliderPage() {
                 onValueChange={setValue}
                 className="w-full"
               />
-              <div 
+              <div
+                data-testid="slider-bubble"
                 className="absolute -top-10 left-1/2 -translate-x-1/2 flex h-8 w-12 items-center justify-center rounded bg-primary text-xs font-bold text-primary-foreground shadow-lg"
                 style={{ left: `${value[0]}%` }}
               >
@@ -43,7 +45,7 @@ export default function SliderPage() {
             
             <div className="flex justify-between text-xs text-muted-foreground font-mono">
               <span>MIN: 0</span>
-              <span>CURRENT: {value[0]}</span>
+              <span data-testid="slider-current">CURRENT: {value[0]}</span>
               <span>MAX: 100</span>
             </div>
           </CardContent>

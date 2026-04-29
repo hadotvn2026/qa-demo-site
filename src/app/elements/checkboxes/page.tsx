@@ -36,9 +36,10 @@ export default function CheckboxesPage() {
             <CardDescription>A standard HTML5 checkbox input.</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <input 
-              type="checkbox" 
-              id="native-checkbox" 
+            <input
+              type="checkbox"
+              id="native-checkbox"
+              data-testid="checkbox-native"
               checked={checkedItems.native}
               onChange={() => toggle("native")}
               className="h-5 w-5 accent-primary"
@@ -54,8 +55,9 @@ export default function CheckboxesPage() {
             <CardDescription>The shadcn/ui checkbox component.</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <Checkbox 
-              id="shadcn-checkbox" 
+            <Checkbox
+              id="shadcn-checkbox"
+              data-testid="checkbox-shadcn"
               checked={checkedItems.shadcn}
               onCheckedChange={() => toggle("shadcn")}
             />
@@ -70,8 +72,9 @@ export default function CheckboxesPage() {
             <CardDescription>A styled div that acts like a checkbox but has no input tag.</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <div 
+            <div
               id="custom-checkbox"
+              data-testid="checkbox-custom"
               onClick={() => toggle("custom")}
               className={cn(
                 "flex h-5 w-5 items-center justify-center rounded border transition-colors cursor-pointer",
