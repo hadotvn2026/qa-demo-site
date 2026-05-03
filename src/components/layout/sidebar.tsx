@@ -26,7 +26,8 @@ import {
   ListTodo,
   Calculator,
   BookOpen,
-  UserPlus
+  UserPlus,
+  CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -49,6 +50,7 @@ const navItems = [
   { name: "Drag and Drop", href: "/elements/drag-drop", icon: Move },
   { name: "Hover", href: "/elements/hover", icon: UserCircle },
   { name: "Context Click", href: "/elements/context-click", icon: MoreVertical },
+  { name: "Disappear Element", href: "/elements/disappear", icon: CreditCard },
   { name: "JS Alerts", href: "/elements/alerts", icon: MessageSquareWarning },
   { name: "Nested Frames", href: "/elements/nested-frames", icon: LayoutTemplate },
   { name: "Todo MVC", href: "/elements/todo-mvc", icon: ListTodo },
@@ -125,7 +127,7 @@ export function Sidebar() {
           <div className="mt-auto border-t border-border pt-4 px-2">
             <div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              18/18 PASSING
+              21/21 PASSING
             </div>
           </div>
         </div>

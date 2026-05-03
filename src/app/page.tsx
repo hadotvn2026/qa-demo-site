@@ -9,7 +9,7 @@ export default function LandingPage() {
       <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
         <div className="h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
         <span className="text-xs font-mono tracking-widest text-muted-foreground uppercase">
-          20/20 PASSING · PLAYWRIGHT + SELENIUM
+          21/21 PASSING · PLAYWRIGHT + SELENIUM
         </span>
       </div>
 
@@ -50,7 +50,7 @@ export default function LandingPage() {
         </div>
         <div className="p-6 font-mono text-sm space-y-2">
           <div className="flex flex-wrap gap-1">
-            {Array.from({ length: 20 }).map((_, i) => (
+            {Array.from({ length: 21 }).map((_, i) => (
               <span
                 key={i}
                 className="inline-block h-2 w-2 rounded-full bg-primary opacity-0 animate-[test-dot_0.1s_forwards]"
@@ -59,7 +59,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="text-muted-foreground opacity-0 animate-[fade-in_0.5s_forwards] delay-[3s]">
-            <p className="mt-4 text-primary font-bold">20 passed in 3.4s</p>
+            <p className="mt-4 text-primary font-bold">21 passed in 3.4s</p>
             <p className="mt-1 text-zinc-600">Running against preview: flakelab.dev</p>
           </div>
         </div>
@@ -84,6 +84,7 @@ export default function LandingPage() {
             { label: "Drag-Drop", href: "/elements/drag-drop" },
             { label: "Hover", href: "/elements/hover" },
             { label: "Context Click", href: "/elements/context-click" },
+            { label: "Disappear Element", href: "/elements/disappear" },
             { label: "Popup", href: "/elements/popup" },
             { label: "Date Picker", href: "/elements/date-picker" },
             { label: "JS Alerts", href: "/elements/alerts" },

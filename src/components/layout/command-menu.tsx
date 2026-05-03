@@ -21,6 +21,7 @@ import {
   Calculator,
   BookOpen,
   UserPlus,
+  CreditCard,
 } from "lucide-react";
 
 import {
@@ -48,6 +49,7 @@ const menuItems = [
   { name: "Drag and Drop", href: "/elements/drag-drop", icon: Move },
   { name: "Hover", href: "/elements/hover", icon: UserCircle },
   { name: "Context Click", href: "/elements/context-click", icon: MousePointerClick },
+  { name: "Disappear Element", href: "/elements/disappear", icon: CreditCard },
   { name: "Random Popup", href: "/elements/popup", icon: Zap },
   { name: "BMI Calculator", href: "/elements/bmi", icon: Calculator },
   { name: "Locator Cheatsheet", href: "/cheatsheet", icon: BookOpen },
@@ -83,7 +85,7 @@ export function CommandMenu() {
         </kbd>
       </p>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type to search 14 elements..." />
+        <CommandInput placeholder="Type to search 15 elements..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Elements">
