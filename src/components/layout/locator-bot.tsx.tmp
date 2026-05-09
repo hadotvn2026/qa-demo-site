@@ -252,52 +252,10 @@ function buildSelectorCandidates(
   };
 }
 
-function getAccessibleName(el: Element): string | null {
-  const ariaLabel = el.getAttribute("aria-label");
-  if (ariaLabel) return ariaLabel.trim();
-
-  const ariaLabelledBy = el.getAttribute("aria-labelledby");
-  if (ariaLabelledBy) {
-    const labelEl = document.getElementById(ariaLabelledBy);
-    if (labelEl && labelEl.textContent) return labelEl.textContent.trim();
-  }
-
-  const id = el.id;
-  if (id) {
-    const label = document.querySelector(`label[for="${CSS.escape(id)}"]`);
-    if (label && label.textContent) return label.textContent.trim();
-  }
-
-  const parentLabel = el.closest("label");
-  if (parentLabel && parentLabel.textContent) {
-    return parentLabel.textContent.trim();
-  }
-
-  const title = el.getAttribute("title");
-  if (title) return title.trim();
-
-  const alt = el.getAttribute("alt");
-  if (alt) return alt.trim();
-
-  // Fallback to name attribute if label is missing
-  const nameAttr = el.getAttribute("name");
-  if (nameAttr) {
-    // Capitalize first letter to match common label styles
-    return nameAttr.charAt(0).toUpperCase() + nameAttr.slice(1);
-  }
-
-  // Fallback to placeholder if all else fails
-  const placeholder = el.getAttribute("placeholder");
-  if (placeholder) return placeholder.trim();
-
-  return null;
-}
-
 function buildPlaywrightCandidates(
   tag: string,
   text: string,
   attrs: Array<{ name: string; value: string }>,
-  el: Element
 ): string[] {
   const pw: string[] = [];
   const getAttr = (name: string) => attrs.find((a) => a.name === name)?.value;
@@ -321,26 +279,18 @@ function buildPlaywrightCandidates(
   }
 
   if (role) {
-    let name = ariaLabel || text || getAttr("alt") || getAttr("title") || getAttr("value");
-    if (!name && (role === "textbox" || role === "checkbox" || role === "radio" || role === "combobox" || role === "button")) {
-       name = getAccessibleName(el);
-    }
+    const name = ariaLabel || text || getAttr("alt") || getAttr("title") || getAttr("value");
     if (name) {
-      const cleanName = name.replace(/'/g, "\\'").replace(/\s+/g, ' ').trim();
-      pw.push(`getByRole('${role}', { name: '${cleanName}' })`);
+      pw.push(`getByRole('${role}', { name: '${name.replace(/'/g, "\\'")}' })`);
     } else {
       pw.push(`getByRole('${role}')`);
     }
   }
 
   const placeholder = getAttr("placeholder");
-  if (placeholder) {
-    pw.push(`getByPlaceholder('${placeholder.replace(/'/g, "\\'")}', { exact: true })`);
-  }
+  if (placeholder) pw.push(`getByPlaceholder('${placeholder.replace(/'/g, "\\'")}')`);
 
-  if (text && text.length <= 80) {
-    pw.push(`getByText('${text.replace(/'/g, "\\'")}', { exact: true })`);
-  }
+  if (text && text.length <= 80) pw.push(`getByText('${text.replace(/'/g, "\\'")}')`);
 
   const id = getAttr("id");
   if (id) pw.push(`locator('#${CSS.escape(id)}')`);
@@ -353,6 +303,7 @@ function buildPlaywrightCandidates(
 
   return Array.from(new Set(pw));
 }
+
 
 function buildSeleniumCandidates(
   tag: string,
@@ -386,6 +337,12 @@ function buildSeleniumCandidates(
   }
 
   sel.push(`By.tagName("${tag}")`);
+  
+  // Basic CSS fallback
+  if (attrs.length > 0) {
+     const cssParts = attrs.map(a => `[${a.name}="${a.value.replace(/"/g, '\\"') }"]`).join("");
+     sel.push(`By.cssSelector("${tag}${cssParts}")`);
+  }
 
   return Array.from(new Set(sel));
 }
@@ -548,17 +505,7 @@ function matchCheatsheetRecipes(el: Element, text: string): CheatsheetMatch[] {
     });
   }
 
-  return matches.map(m => {
-    let selenium = null;
-    if (m.css) {
-       if (m.css.startsWith('#') && !m.css.includes(' ') && !m.css.includes('[')) selenium = `By.id("${m.css.slice(1).replace(/\\/g, '')}")`;
-       else if (/^[a-z]+$/.test(m.css)) selenium = `By.tagName("${m.css}")`;
-       else selenium = `By.cssSelector("${m.css.replace(/"/g, '\\"')}")`;
-    } else if (m.xpath) {
-       selenium = `By.xpath("${m.xpath.replace(/"/g, '\\"')}")`;
-    }
-    return { ...m, selenium };
-  });
+  return matches;
 }
 
 function analyzeElement(el: Element): ElementAnalysis {
@@ -573,7 +520,7 @@ function analyzeElement(el: Element): ElementAnalysis {
   }
 
   const { css, xpath } = buildSelectorCandidates(tag, text, attrs);
-  const playwright = buildPlaywrightCandidates(tag, text, attrs, el);
+  const playwright = buildPlaywrightCandidates(tag, text, attrs);
   const selenium = buildSeleniumCandidates(tag, text, attrs);
   const cheatsheetMatches = matchCheatsheetRecipes(el, text);
   return {
@@ -904,7 +851,7 @@ function BrainstormPanel({ analysis, stage, copied, onCopy }: BrainstormPanelPro
             />
           )}
 
-          {stage >= 5 && (
+          {stage >= 8 && (
             <CandidateList
               label="Possible Selenium Java locators (Stable)"
               accent="text-amber-300"
@@ -912,40 +859,7 @@ function BrainstormPanel({ analysis, stage, copied, onCopy }: BrainstormPanelPro
               copied={copied}
               onCopy={onCopy}
             />
-          )}
-
-          {stage >= 6 && (
-            <CandidateList
-              label="Possible CSS selectors (Stable to Fragile)"
-              accent="text-cyan-300"
-              items={analysis.cssCandidates}
-              copied={copied}
-              onCopy={onCopy}
-            />
-          )}
-
-          {stage >= 7 && (
-            <CandidateList
-              label="Possible XPath selectors (Use as last resort)"
-              accent="text-violet-300"
-              items={analysis.xpathCandidates}
-              copied={copied}
-              onCopy={onCopy}
-            />
-          )}
-
-          {stage >= 8 && (
-            <p className="mt-3 animate-in fade-in text-xs italic text-muted-foreground">
-              ✓ Reasoning complete — pick the locator that best survives a UI refactor.
-            </p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ThinkingLine({ show, children }: { show: boolean; children: React.ReactNode }) {
+          )} {
   if (!show) return null;
   return (
     <div className="animate-in fade-in slide-in-from-left-2 duration-300">
@@ -1044,7 +958,6 @@ function CheatsheetPanel({ matches, copied, onCopy }: CheatsheetPanelProps) {
                 <th className="px-2 py-2 font-medium">Score</th>
                 <th className="px-2 py-2 font-medium">Recipe</th>
                 <th className="px-2 py-2 font-medium text-emerald-300">Playwright</th>
-                <th className="px-2 py-2 font-medium text-amber-300">Selenium</th>
                 <th className="px-2 py-2 font-medium text-sky-300">CSS</th>
                 <th className="px-2 py-2 font-medium text-violet-300">XPath</th>
               </tr>
@@ -1055,7 +968,6 @@ function CheatsheetPanel({ matches, copied, onCopy }: CheatsheetPanelProps) {
                   ...m,
                   score: Math.max(
                     m.playwright ? rateLocator(m.playwright) : 0,
-                    m.selenium ? rateLocator(m.selenium) : 0,
                     m.css ? rateLocator(m.css) : 0,
                     m.xpath ? rateLocator(m.xpath) : 0,
                   ),
@@ -1075,14 +987,6 @@ function CheatsheetPanel({ matches, copied, onCopy }: CheatsheetPanelProps) {
                         value={m.playwright ?? null}
                         accent="text-emerald-300"
                         copied={copied === m.playwright}
-                        onCopy={onCopy}
-                      />
-                    </td>
-                    <td className="px-2 py-2">
-                      <CheatsheetCell
-                        value={m.selenium ?? null}
-                        accent="text-amber-300"
-                        copied={copied === m.selenium}
                         onCopy={onCopy}
                       />
                     </td>
