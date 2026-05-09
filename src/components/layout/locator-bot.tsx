@@ -321,7 +321,7 @@ function buildPlaywrightCandidates(
   }
 
   if (role) {
-    let name = ariaLabel || text || getAttr("alt") || getAttr("title") || getAttr("value");
+    let name: string | null | undefined = ariaLabel || text || getAttr("alt") || getAttr("title") || getAttr("value");
     if (!name && (role === "textbox" || role === "checkbox" || role === "radio" || role === "combobox" || role === "button")) {
        name = getAccessibleName(el);
     }
